@@ -1,0 +1,1365 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Factor It! Expand and factorize game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFDFF; --grid:#DFEAF6; --ink:#1B2A6B; --ink-soft:#56639A; --line:#C3D0EA;
+  --hi:#FFE45C; --hi-ink:#1B2A6B; --red:#D23232; --green:#14905A; --margin:#F2A0A0;
+  --key:#FFFFFF; --key-edge:#BCC8E6; --panel:#EEF3FB; --gold:#E3A400; --gold-deep:#B07A00;
+  --sub:#A9D8FF; --sub2:#FFA8D5; --sub-ink:#14204F;
+  --ui:'Bricolage Grotesque', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --math:'STIX Two Text', 'Cambria Math', Cambria, 'Times New Roman', serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1730; --grid:#1A2647; --ink:#E4EAFF; --ink-soft:#A3AFD8; --line:#2C3A6A;
+    --hi:#E9CF3A; --hi-ink:#14204F; --red:#FF7070; --green:#3DD598; --margin:#7A3A4A;
+    --key:#18224A; --key-edge:#2E3C70; --panel:#141E3D; --gold:#FFC93C; --gold-deep:#C99412;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1730; --grid:#1A2647; --ink:#E4EAFF; --ink-soft:#A3AFD8; --line:#2C3A6A;
+  --hi:#E9CF3A; --hi-ink:#14204F; --red:#FF7070; --green:#3DD598; --margin:#7A3A4A;
+  --key:#18224A; --key-edge:#2E3C70; --panel:#141E3D; --gold:#FFC93C; --gold-deep:#C99412;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{
+  margin:0;min-height:100%;color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.5;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.m{font-family:var(--math)}
+i{font-style:italic;padding:0 .02em}
+.m i, .math i{font-family:var(--math)}
+sup{font-size:.62em;line-height:0}
+.wrap{max-width:1100px;margin:0 auto;padding:16px 18px 40px}
+[hidden]{display:none!important}
+
+/* stacked fractions */
+.frac{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.15;margin:0 .12em}
+.frac .nu{border-bottom:.09em solid currentColor;padding:0 .2em .06em}
+.frac .de{padding:.06em .2em 0}
+.ph{opacity:.45}
+.var{border-radius:5px;padding:0 .16em;background:var(--sub);color:var(--sub-ink)}
+.var.v2{background:var(--sub2)}
+.dbl{text-decoration:underline double;text-decoration-thickness:2px;text-underline-offset:.22em}
+
+/* header */
+header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:6px 0 14px;border-bottom:2px solid var(--ink);margin-bottom:20px}
+.brand{font-weight:800;font-size:1.35rem;letter-spacing:-.02em;margin:0;white-space:nowrap}
+.brand span{font-family:var(--math);font-style:italic;font-weight:600}
+.progress{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex:1;min-width:0;flex-wrap:wrap}
+.progress li{width:30px;height:30px;border:2px solid var(--ink);border-radius:7px;display:grid;place-items:center;font-weight:600;font-size:.85rem;background:var(--paper)}
+.progress li.now{background:var(--hi);color:var(--hi-ink);border-color:var(--hi-ink)}
+.progress li.done{background:var(--ink);color:var(--paper)}
+.score{position:relative;display:flex;align-items:baseline;gap:8px;padding:4px 14px;border:2px solid var(--ink);border-radius:10px;background:var(--paper)}
+.score small{font-size:.8rem;color:var(--ink-soft)}
+.score b{font-size:1.5rem;font-variant-numeric:tabular-nums;min-width:2.5ch;text-align:right}
+.score b.neg{color:var(--red)}
+.float{position:absolute;right:10px;top:-6px;font-weight:800;font-size:1.1rem;pointer-events:none;animation:floatUp 1s ease-out forwards}
+.float.up{color:var(--green)} .float.down{color:var(--red)}
+@keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-34px)}}
+.linkbtn{background:none;border:none;text-decoration:underline;text-underline-offset:3px;cursor:pointer;color:var(--ink-soft);padding:4px}
+
+/* start */
+.start{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:24px 0}
+.hero{font-family:var(--math);font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.25}
+.hero .when{font-family:var(--ui);font-size:.5em;color:var(--ink-soft);display:block;margin-bottom:.3em}
+.hero-work{display:grid;grid-template-columns:auto auto 1fr;column-gap:.3em;align-items:center;row-gap:.25em}
+.hero-work .eqs{color:var(--ink-soft)}
+.start h1{font-size:clamp(1.6rem,3.4vw,2.3rem);letter-spacing:-.02em;line-height:1.1;margin:22px 0 10px}
+.start p.lead{max-width:46ch;color:var(--ink-soft);margin:0 0 22px}
+.rules{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:22px 24px}
+.rules h2{margin:0 0 10px;font-size:1.15rem}
+.rules ul{margin:0;padding-left:1.1em}
+.rules li{margin:6px 0}
+.pts-up{color:var(--green);font-weight:800}
+.pts-down{color:var(--red);font-weight:800}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{border:2px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:800;font-size:1.05rem;padding:12px 22px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 var(--ink-soft);transition:transform .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink-soft)}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+
+/* play */
+.idbox{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.idbox span{font-family:var(--math);font-size:1.12rem;background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:2px 10px}
+.mi{font-family:var(--math);font-size:1.12em;white-space:nowrap}
+.mute{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);background:var(--paper);border-radius:10px;padding:5px 10px;cursor:pointer;font-weight:600;font-size:.9rem}
+.mute svg{width:20px;height:20px}
+.mute[aria-pressed="false"]{color:var(--ink-soft);border-color:var(--ink-soft)}
+.letters{display:flex;gap:7px;margin-bottom:7px}
+.letters .key{flex:1;font-family:var(--math);font-style:italic;font-size:1.55rem}
+.mode{display:inline-block;font-size:.8rem;font-weight:800;padding:1px 8px;border-radius:999px;border:1.5px solid currentColor;margin-right:8px;vertical-align:2px}
+.mode.expand{color:var(--green)} .mode.factor{color:var(--red)}
+.play{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr);gap:28px;align-items:start}
+.sheet{position:relative;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:22px 24px 26px 86px;min-height:380px}
+.sheet::before{content:"";position:absolute;left:72px;top:0;bottom:0;width:2px;background:var(--margin)}
+.qmeta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.qmeta h2{margin:0;font-size:1.3rem;letter-spacing:-.01em}
+.src{font-size:.9rem;color:var(--ink-soft)}
+.src.follow{color:var(--red);font-weight:600}
+.tip{color:var(--ink-soft);margin:4px 0 14px;font-size:.95rem}
+.prompt{font-size:1.15rem;padding:10px 0 14px;border-bottom:1px dashed var(--line);margin-bottom:8px;line-height:2}
+.prompt i.m{font-size:1.35em}
+.prompt .math{font-family:var(--math);font-size:1.35em;white-space:nowrap}
+.when{font-weight:600;padding:10px 0 2px;font-size:1.1rem}
+.when .math{font-family:var(--math);font-size:1.3em;font-weight:400}
+.work{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:0;align-items:center}
+.row .eqs{padding-right:.4em;position:relative}
+.row .ex{padding-right:.6em}
+.row{display:contents}
+.row > *{padding:9px 0;border-bottom:1px dashed var(--line);min-height:3.6rem;display:flex;align-items:center}
+.row .lhs{font-family:var(--math);font-size:1.7rem;justify-content:flex-end;position:relative}
+.row .lhs i{font-style:italic}
+.row .eqs{font-family:var(--math);font-size:1.7rem;color:var(--ink-soft)}
+.row .ex{font-family:var(--math);font-size:1.6rem;display:block;line-height:1.7;padding-top:12px}
+.row.head .ex{font-size:1.75rem}
+.row.head .eqs{font-family:var(--ui);font-size:1rem;font-weight:800;color:var(--ink)}
+.row .ex svg.mark{vertical-align:-6px;margin-left:8px}
+.row .note{font-size:.88rem;color:var(--ink-soft);text-align:right;justify-content:flex-end}
+.row.cur .note{color:var(--ink);font-weight:600}
+.row.future > *{opacity:.5}
+.row.future .ex{font-family:var(--ui);font-size:1rem;letter-spacing:.2em}
+.mg{position:absolute;left:-80px;width:62px;text-align:right;font-family:var(--ui);font-size:.78rem;font-weight:800;color:var(--ink-soft);line-height:1.2;white-space:nowrap}
+.row.done .mg{color:var(--green)}
+.row.cur .mg span{display:inline-block;text-align:center;background:var(--hi);color:var(--hi-ink);padding:2px 7px;border-radius:6px}
+.typing{min-width:4ch;display:inline-block;border-bottom:2px solid var(--ink);padding:2px 4px;background:var(--panel);min-height:1.6em}
+.caret{display:inline-block;width:2px;height:1em;background:var(--ink);vertical-align:-.1em;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+svg.mark{width:28px;height:28px;flex:none}
+svg.mark path{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40}
+.row.new svg.mark path{animation:draw .35s ease-out}
+svg.tick path{stroke:var(--green)}
+@keyframes draw{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
+.revealed{color:var(--ink-soft)}
+.wrongs{grid-column:2 / -1;font-size:.88rem;color:var(--red);padding:2px 0 6px}
+
+/* pad */
+.side{position:sticky;top:12px}
+.screen{background:var(--panel);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;margin-bottom:10px}
+.screen .label{font-size:.82rem;color:var(--ink-soft)}
+.screen .val{font-family:var(--math);font-size:1.7rem;min-height:3rem;overflow-x:auto;white-space:nowrap;display:flex;align-items:center}
+.screen .val .eqs{color:var(--ink-soft);margin-right:.3em}
+.screen.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.feedback{min-height:1.5rem;margin:0 0 8px;font-weight:600}
+.feedback.ok{color:var(--green)} .feedback.bad{color:var(--red)} .feedback.note{color:var(--ink-soft)}
+.hint{background:var(--hi);color:var(--hi-ink);border-radius:10px;padding:10px 12px 10px 14px;margin:0 0 10px;font-size:.95rem;border-left:5px solid var(--hi-ink)}
+.hint b{display:block;font-size:.85rem}
+.hint .reveal{display:block;margin:6px 0 2px;font-family:var(--math);font-size:1.35rem;white-space:nowrap;overflow-x:auto;padding-bottom:2px}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.key{height:54px;border:2px solid var(--key-edge);background:var(--key);border-radius:12px;font-size:1.3rem;font-weight:600;cursor:pointer;box-shadow:0 3px 0 var(--key-edge);transition:transform .05s;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:0}
+.key:active,.key.pressed{transform:translateY(2px);box-shadow:0 1px 0 var(--key-edge)}
+.key.op{font-family:var(--math);font-size:1.55rem}
+.key.fn{font-size:.95rem;color:var(--ink-soft)}
+.key.go{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:0 3px 0 var(--ink-soft);font-size:1rem;font-weight:800}
+.key sup{font-size:.6em}
+.key .ficon{display:inline-flex;flex-direction:column;align-items:center;font-size:.62em;line-height:1;gap:2px;vertical-align:middle}
+.key .ficon i{display:block;width:12px;height:9px;border:1.6px solid currentColor;border-radius:2px;padding:0}
+.key .ficon b{display:block;width:18px;border-top:2px solid currentColor}
+.typehelp{font-size:.82rem;color:var(--ink-soft);margin-top:10px}
+.result{border:2px solid var(--ink);border-radius:14px;padding:18px;background:var(--paper)}
+.result h3{margin:0 0 6px;font-size:1.25rem}
+.result p{margin:0 0 14px;color:var(--ink-soft)}
+.result.clean h3{color:var(--green)}
+.result.again h3{color:var(--red)}
+
+/* trophy */
+.win{text-align:center;padding:30px 0 10px}
+.win h1{font-size:clamp(2rem,5vw,3rem);margin:8px 0 4px;letter-spacing:-.02em}
+.win p{color:var(--ink-soft);margin:0 0 20px}
+.trophy{width:min(250px,60vw);height:auto;animation:rise .9s cubic-bezier(.2,1.4,.4,1)}
+@keyframes rise{from{transform:translateY(40px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+.stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:0 0 24px}
+.stat{border:2px solid var(--ink);border-radius:12px;padding:10px 18px;background:var(--paper);min-width:120px}
+.stat b{display:block;font-size:1.6rem}
+.stat span{font-size:.85rem;color:var(--ink-soft)}
+.win .cta{justify-content:center}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+.confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;padding:0;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+@media (max-width:860px){
+  .start{grid-template-columns:1fr;gap:24px;padding:10px 0}
+  .play{grid-template-columns:1fr;gap:18px}
+  .side{position:static}
+  .sheet{padding:18px 14px 20px 70px;min-height:0}
+  .sheet::before{left:58px}
+  .mg{left:-66px;width:52px}
+  .work{grid-template-columns:auto minmax(0,1fr)}
+  .row .note{grid-column:2;border-bottom:1px dashed var(--line);justify-content:flex-start;text-align:left;min-height:0;padding:0 0 8px;margin-top:-1px}
+  .row .ex{border-bottom-color:transparent}
+  .row .eqs{border-bottom-color:transparent}
+  .row .eqs,.row .ex{font-size:1.35rem}
+  .row.head .ex{font-size:1.45rem}
+}
+@media (max-width:640px){
+  header.top{gap:10px}
+  .brand{flex:1;font-size:1.1rem}
+  .score{order:3;padding:2px 10px;gap:6px}
+  .score b{font-size:1.25rem}
+  .progress{order:4;flex:0 0 100%;flex-wrap:nowrap}
+  .progress li{flex:1;width:auto}
+}
+@media (max-width:480px){
+  .wrap{padding:12px 10px 30px}
+  .progress li{height:26px;font-size:.78rem}
+  .key{height:50px;font-size:1.15rem}
+  .keys,.letters{gap:6px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
+  .confetti{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="brand">Factor <span>it!</span></p>
+    <ol class="progress" id="progress" aria-label="Question types"></ol>
+    <button class="mute" id="muteBtn" type="button" aria-pressed="true" aria-label="Sound effects"></button>
+    <div class="score" aria-live="polite"><small>Score</small><b id="score">0</b></div>
+  </header>
+
+  <section id="startView" class="start">
+    <div>
+      <div class="hero" id="hero" aria-label="Worked example: 45x² − 80y² = 5(9x² − 16y²) = 5[(3x)² − (4y)²] = 5(3x + 4y)(3x − 4y)"></div>
+      <h1>Expand and factorize with identities, one line at a time.</h1>
+      <p class="lead">Twelve question types from your worksheet: five on expanding with identities and seven on factorization. Write each line of working after the equals sign and earn the trophy.</p>
+      <div class="cta">
+        <button class="btn" id="startBtn" type="button">Start the game</button>
+      </div>
+    </div>
+    <div class="rules">
+      <h2>How it works</h2>
+      <ul>
+        <li>Each step is a new line starting with <b>=</b>. Type the whole line on the number pad.</li>
+        <li>Correct line: <span class="pts-up">+10</span>. A line with the wrong value: <span class="pts-down">−10</span> and you get a hint.</li>
+        <li>If your line is equal but isn’t the step asked for, you get a tip and lose nothing. Steps marked “optional” can be skipped for both sets of marks.</li>
+        <li>Make a mistake and you’ll answer one more question of the same type. Finish a question with no mistakes to clear the type. Clear all 12 to win the trophy.</li>
+        <li>Brackets inside brackets show as [ ] like in your textbook. For powers, type the letter or bracket, press <b>x<sup>n</sup></b>, then the number.</li>
+        <li>Sound is on. Use the speaker button at the top to turn it off.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="playView" class="play" hidden>
+    <div class="sheet" id="sheet"></div>
+    <aside class="side">
+      <div id="padArea">
+        <div class="screen" id="screen"><div class="label" id="screenLabel">Your line</div><div class="val" id="screenVal"></div></div>
+        <p class="feedback" id="feedback" aria-live="polite"></p>
+        <div class="hint" id="hint" hidden></div>
+        <div class="letters" id="letters"></div>
+        <div class="keys">
+          <button class="key" data-k="7" type="button">7</button>
+          <button class="key" data-k="8" type="button">8</button>
+          <button class="key" data-k="9" type="button">9</button>
+          <button class="key op" data-k="(" type="button" aria-label="open bracket">(</button>
+          <button class="key op" data-k=")" type="button" aria-label="close bracket">)</button>
+          <button class="key" data-k="4" type="button">4</button>
+          <button class="key" data-k="5" type="button">5</button>
+          <button class="key" data-k="6" type="button">6</button>
+          <button class="key op" data-k="*" type="button" aria-label="times">×</button>
+          <button class="key op" data-k="/" type="button" aria-label="fraction"><span class="ficon"><i></i><b></b><i></i></span></button>
+          <button class="key" data-k="1" type="button">1</button>
+          <button class="key" data-k="2" type="button">2</button>
+          <button class="key" data-k="3" type="button">3</button>
+          <button class="key op" data-k="+" type="button" aria-label="plus">+</button>
+          <button class="key op" data-k="-" type="button" aria-label="minus">−</button>
+          <button class="key" data-k="0" type="button">0</button>
+          <button class="key fn" data-k="^" type="button" aria-label="power">x<sup>n</sup></button>
+          <button class="key fn" data-k="back" type="button" aria-label="Delete">⌫</button>
+          <button class="key fn" data-k="clear" type="button">Clear</button>
+          <button class="key go" data-k="enter" type="button">Check</button>
+        </div>
+        <p class="typehelp">No × needed between terms: 2(a)(8) works. The fraction key puts the next number underneath: x, fraction, 2 gives x over 2. Keyboard works too: letters, digits, + − * / ( ), ^ for powers, Enter to check.</p>
+      </div>
+      <div id="resultArea" hidden></div>
+    </aside>
+  </section>
+
+  <section id="winView" class="win" hidden>
+    <svg class="trophy" viewBox="0 0 200 220" role="img" aria-label="Gold trophy">
+      <path d="M52 30 H20 c0 40 14 62 44 66" fill="none" stroke="var(--gold-deep)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M148 30 H180 c0 40 -14 62 -44 66" fill="none" stroke="var(--gold-deep)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M48 18 H152 V60 c0 36 -22 62 -52 62 s-52 -26 -52 -62 Z" fill="var(--gold)" stroke="var(--gold-deep)" stroke-width="5"/>
+      <path d="M70 34 c-2 22 4 44 18 58" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="7" stroke-linecap="round"/>
+      <rect x="88" y="120" width="24" height="34" fill="var(--gold-deep)"/>
+      <rect x="62" y="152" width="76" height="16" rx="4" fill="var(--gold)" stroke="var(--gold-deep)" stroke-width="4"/>
+      <rect x="22" y="168" width="156" height="36" rx="6" fill="var(--ink)"/>
+      <text x="100" y="192" text-anchor="middle" font-family="STIX Two Text, serif" font-size="13.5" fill="var(--paper)"><tspan font-style="italic">a</tspan>² − <tspan font-style="italic">b</tspan>² = (<tspan font-style="italic">a</tspan> + <tspan font-style="italic">b</tspan>)(<tspan font-style="italic">a</tspan> − <tspan font-style="italic">b</tspan>)</text>
+      <text x="100" y="78" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="27" fill="var(--gold-deep)">12/12</text>
+    </svg>
+    <h1>All question types cleared!</h1>
+    <p>You can expand and factorize with identities now.</p>
+    <div class="stats" id="stats"></div>
+    <div class="cta">
+      <button class="btn" id="againBtn" type="button">Play again</button>
+    </div>
+  </section>
+</div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script>
+/* ---------- Algebra engine: polynomials as Map(key -> {c, m}) ---------- */
+const mkey = m => Object.keys(m).filter(v=>m[v]).sort().map(v=>v+m[v]).join('');
+const EPS = 1e-9;
+const P = {
+  num(c){ const p=new Map(); if(Math.abs(c)>EPS) p.set('',{c,m:{}}); return p; },
+  vr(v){ return new Map([[v+'1',{c:1,m:{[v]:1}}]]); },
+  add(a,b){
+    const r=new Map(); for(const [k,t] of a) r.set(k,{c:t.c,m:t.m});
+    for(const [k,t] of b){ const c=(r.has(k)?r.get(k).c:0)+t.c; if(Math.abs(c)<EPS) r.delete(k); else r.set(k,{c,m:t.m}); }
+    return r;
+  },
+  neg(a){ const r=new Map(); for(const [k,t] of a) r.set(k,{c:-t.c,m:t.m}); return r; },
+  mul(a,b){
+    let r=new Map();
+    for(const [,x] of a) for(const [,y] of b){ const m={...x.m}; for(const v in y.m) m[v]=(m[v]||0)+y.m[v]; r=P.add(r,new Map([[mkey(m),{c:x.c*y.c,m}]])); }
+    return r;
+  },
+  isConst(a){ for(const k of a.keys()) if(k!=='') return false; return true; },
+  cval(a){ return a.has('')?a.get('').c:0; },
+  div(a,b){
+    if(!P.isConst(b)) throw new Error('Divide by numbers only');
+    const d=P.cval(b); if(Math.abs(d)<EPS) throw new Error('Divide by zero');
+    const r=new Map(); for(const [k,t] of a) r.set(k,{c:t.c/d,m:t.m}); return r;
+  },
+  pow(a,e){
+    if(!P.isConst(e)) throw new Error('Bad power');
+    const n=P.cval(e); if(!Number.isInteger(Math.round(n*1e6)/1e6)||n<0||n>12) throw new Error('Bad power');
+    let r=P.num(1); for(let i=0;i<Math.round(n);i++) r=P.mul(r,a); return r;
+  },
+  eq(a,b){ const d=P.add(a,P.neg(b)); for(const [,t] of d) if(Math.abs(t.c)>1e-7) return false; return true; }
+};
+
+function tokenize(str){
+  const s=String(str).replace(/×/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/\s+/g,'');
+  const t=[]; let i=0;
+  while(i<s.length){
+    const ch=s[i];
+    if(/\d/.test(ch)){ let j=i; while(j<s.length&&/[\d.]/.test(s[j])) j++; t.push({k:'n',v:parseFloat(s.slice(i,j))}); i=j; }
+    else if(/[a-z]/i.test(ch)){ t.push({k:'v',v:ch.toLowerCase()}); i++; }
+    else if('+-*/^()'.includes(ch)){ t.push({k:ch}); i++; }
+    else throw new Error('Unknown symbol');
+  }
+  return t;
+}
+
+function parse(str){
+  const t=tokenize(str); let i=0;
+  if(!t.length) throw new Error('Empty');
+  const peek=()=>t[i];
+  function expr(){ let v=term(); while(peek()&&(peek().k==='+'||peek().k==='-')){ const op=t[i++].k; const r=term(); v=op==='+'?P.add(v,r):P.add(v,P.neg(r)); } return v; }
+  function term(){
+    let v=unary();
+    for(;;){ const p=peek(); if(!p) break;
+      if(p.k==='*'){ i++; v=P.mul(v,unary()); }
+      else if(p.k==='/'){ i++; v=P.div(v,unary()); }
+      else if(p.k==='v'||p.k==='('||p.k==='n'){ v=P.mul(v,power()); }
+      else break; }
+    return v;
+  }
+  function unary(){ const p=peek(); if(p&&p.k==='-'){ i++; return P.neg(unary()); } if(p&&p.k==='+'){ i++; return unary(); } return power(); }
+  function power(){ let b=primary(); if(peek()&&peek().k==='^'){ i++; b=P.pow(b,unary()); } return b; }
+  function primary(){
+    const p=t[i++]; if(!p) throw new Error('Unfinished');
+    if(p.k==='n') return P.num(p.v);
+    if(p.k==='v') return P.vr(p.v);
+    if(p.k==='('){ const v=expr(); if(!peek()||peek().k!==')') throw new Error('Missing )'); i++; return v; }
+    throw new Error('Unexpected');
+  }
+  const v=expr(); if(i<t.length) throw new Error('Unexpected'); return v;
+}
+
+/* returns null if the typed answer is in simplest form, otherwise a message */
+function simplestFormIssue(str){
+  const t=tokenize(str);
+  if(t.some(x=>'*/()'.includes(x.k))) return "Write the answer without ×, ÷ or brackets.";
+  const keys=new Set(); let i=0, first=true;
+  while(i<t.length){
+    if(t[i].k==='+'||t[i].k==='-') i++; else if(!first) return "Something is out of place in your answer.";
+    first=false;
+    if(i<t.length&&(t[i].k==='+'||t[i].k==='-')) return "You have two signs in a row. Keep just one.";
+    const m={}; let any=false;
+    if(i<t.length&&t[i].k==='n'){ any=true; i++; if(t[i]&&t[i].k==='^') return "Work out the number power first."; }
+    while(i<t.length&&t[i].k==='v'){
+      const v=t[i].v; if(m[v]) return `Use a power instead of repeating a letter, e.g. ${v}×${v} is ${v}².`;
+      i++; let e=1;
+      if(t[i]&&t[i].k==='^'){ i++; if(!t[i]||t[i].k!=='n') return "Type a number for the power."; e=t[i].v; i++; }
+      m[v]=e; any=true;
+    }
+    if(!any) return "Your answer is unfinished.";
+    if(i<t.length&&t[i].k==='n') return "Put the number in front of the letters.";
+    const k=mkey(m); if(keys.has(k)) return "There are still like terms to collect."; keys.add(k);
+  }
+  return null;
+}
+
+/* ---------- Pretty printing ---------- */
+function pretty(expr, withCaretBox){
+  let out='', prev='';
+  for(let i=0;i<expr.length;i++){
+    const ch=expr[i];
+    if(ch===' ') continue;
+    if('+-*/'.includes(ch)){
+      const sym={'+':'+','-':'−','*':'×','/':'÷'}[ch];
+      out += (prev && /[a-z0-9)]/i.test(prev)) ? ` ${sym} ` : sym;
+    } else if(ch==='^'){
+      let j=i+1, d=''; while(j<expr.length&&/\d/.test(expr[j])) d+=expr[j++];
+      out += d ? `<sup>${d}</sup>` : (withCaretBox ? '<sup style="opacity:.5">□</sup>' : '');
+      i=j-1; prev='0'; continue;
+    } else if(/[a-z]/i.test(ch)) out+=`<i>${ch}</i>`;
+    else out+=ch;
+    prev=ch;
+  }
+  return out;
+}
+const fnum = c => String(Math.round(c*10000)/10000);
+function fmtPoly(p){
+  const terms=[...p.values()];
+  if(!terms.length) return '0';
+  const deg=t=>Object.values(t.m).reduce((a,b)=>a+b,0);
+  const vk=t=>Object.keys(t.m).sort().join('');
+  terms.sort((a,b)=>deg(b)-deg(a)||vk(a).localeCompare(vk(b)));
+  let s='';
+  terms.forEach((t,idx)=>{
+    const neg=t.c<0, a=Math.abs(t.c), vars=Object.keys(t.m).filter(v=>t.m[v]).sort();
+    const body = vars.length
+      ? (Math.abs(a-1)<EPS?'':fnum(a)) + vars.map(v=>`<i>${v}</i>`+(t.m[v]>1?`<sup>${t.m[v]}</sup>`:'')).join('')
+      : fnum(a);
+    s += idx===0 ? (neg?'−':'')+body : (neg?' − ':' + ')+body;
+  });
+  return s;
+}
+/* ---------- Checking a line of working ---------- */
+const norm = s => String(s).replace(/×/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/\s+/g,'').toLowerCase().replace(/^\+/,'');
+
+/* split at top-level + and − into signed terms */
+function splitTerms(str){
+  const s=norm(str), out=[]; let depth=0, cur='', sign=1, prev='';
+  for(const ch of s){
+    if(depth===0 && (ch==='+'||ch==='-')){
+      if(cur!=='' && /[a-z0-9)]/i.test(prev)){ out.push({sign,body:cur}); sign=ch==='-'?-1:1; cur=''; prev=ch; continue; }
+      if(cur===''){ if(ch==='-') sign=-sign; prev=ch; continue; }
+    }
+    if(ch==='(') depth++; else if(ch===')') depth--;
+    cur+=ch; prev=ch;
+  }
+  out.push({sign,body:cur});
+  return out;
+}
+const termPoly = t => t.sign<0 ? P.neg(parse(t.body)) : parse(t.body);
+const isSimpleBody = b => b!=='' && !/[()*\/]/.test(b) && simplestFormIssue(b)===null;
+
+/* split a term's body into factors at top-level × and ÷ (and implied × beside brackets) */
+function factorsOf(body){
+  const out=[]; let depth=0, cur='', div=false;
+  const push=()=>{ if(cur) out.push({div,str:cur}); cur=''; div=false; };
+  for(const ch of body){
+    if(depth===0 && (ch==='*'||ch==='/')){ push(); div=ch==='/'; continue; }
+    if(depth===0 && cur && ((ch==='(' && /[a-z0-9)]/i.test(cur.slice(-1))) || (cur.endsWith(')') && /[a-z0-9]/i.test(ch)))){ const d=div; push(); div=false; }
+    if(ch==='(') depth++; else if(ch===')') depth--;
+    cur+=ch;
+  }
+  push(); return out;
+}
+function stripParens(s){
+  while(s.startsWith('(') && s.endsWith(')')){
+    let d=0, whole=true;
+    for(let i=0;i<s.length;i++){ if(s[i]==='(') d++; else if(s[i]===')') d--; if(d===0 && i<s.length-1){ whole=false; break; } }
+    if(!whole) break; s=s.slice(1,-1);
+  }
+  return s;
+}
+function factorSimple(str){ let s=stripParens(str); if(/^[+-]/.test(s)) s=s.slice(1); return s!=='' && !/[()*\/+\-]/.test(s) && simplestFormIssue(s)===null; }
+function polyKeyAbs(p){
+  const e=[...p.entries()].sort((a,b)=>a[0]<b[0]?-1:1);
+  const flip = e.length && e[0][1].c<0 ? -1 : 1;
+  return e.map(([k,t])=>k+':'+Math.round(t.c*flip*1e6)/1e6).join('|');
+}
+const factorSig = f => (f.div?'/':'*') + polyKeyAbs(parse(f.str)) + (factorSimple(f.str)?'s':'c');
+
+function termMatch(a,b){
+  if(!P.eq(termPoly(a),termPoly(b))) return false;
+  const as=isSimpleBody(a.body), bs=isSimpleBody(b.body);
+  if(as!==bs) return false;
+  if(as) return true;
+  const fa=factorsOf(a.body).map(factorSig).sort().join(','), fb=factorsOf(b.body).map(factorSig).sort().join(',');
+  return fa===fb;
+}
+function likeKey(t){
+  const p=termPoly(t);
+  if(p.size===0) return '0';
+  if(p.size===1) return [...p.keys()][0];
+  throw new Error('mixed');
+}
+function adjacent(terms){
+  const keys=terms.map((t,i)=>{ try{ return likeKey(t); }catch(e){ return 'mix'+i; } });
+  const seen=new Set();
+  for(let i=0;i<keys.length;i++){ if(i>0 && keys[i]===keys[i-1]) continue; if(seen.has(keys[i])) return false; seen.add(keys[i]); }
+  return true;
+}
+/* numbers written together and letters written together in one product */
+function productGrouped(t){
+  const fs=factorsOf(t.body); if(fs.length<2) return false;
+  const cls=[];
+  for(const f of fs){
+    let s=stripParens(f.str); if(/^[+-]/.test(s)) s=s.slice(1);
+    if(/^\d+(\.\d+)?$/.test(s)) cls.push('n');
+    else if(/^([a-z](\^\d+)?)+$/.test(s)) cls.push('l');
+    else return false;
+  }
+  let changes=0; for(let i=1;i<cls.length;i++) if(cls[i]!==cls[i-1]) changes++;
+  return changes<=1;
+}
+function lineMatch(input, expected, flags){
+  try{
+    const g=(flags||'').includes('g');
+    const pt=splitTerms(input), et=splitTerms(expected);
+    if(g && et.length===1) return pt.length===1 && productGrouped(pt[0]) && P.eq(parse(input),parse(expected));
+    if(pt.length!==et.length) return false;
+    const used=et.map(()=>false);
+    for(const p of pt){ const j=et.findIndex((e,k)=>!used[k] && termMatch(p,e)); if(j<0) return false; used[j]=true; }
+    return g ? adjacent(pt) : true;
+  }catch(e){ return false; }
+}
+
+/* ---------- Checker for expanding and factorizing ----------
+   Every term of a line gets a signature that keeps its structure (squares, brackets,
+   products) but ignores the order of terms and factors. */
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+function polyKey(p){
+  return [...p.entries()].sort((a,b)=>a[0]<b[0]?-1:1).map(([k,t])=>k+':'+Math.round(t.c*1e6)/1e6).join('|');
+}
+/* a single simplified term: number, letters with powers, optional /number  (e.g. 3x^2y, 9x^2/4, (1/4)x^2) */
+function isSimpleMono(body){
+  let s=String(body);
+  const fr=s.match(/^\((\d+)\/(\d+)\)(.*)$/); if(fr) s=fr[1]+'/'+fr[2]+fr[3];
+  if(s==='' || /[^0-9a-z^\/]/i.test(s)) return false;
+  const toks=s.match(/\d+|[a-z](\^\d+)?|\/|\^\d+/gi);
+  if(!toks || toks.join('')!==s) return false;
+  let num=null, den=null; const letters={};
+  for(let k=0;k<toks.length;k++){
+    const t=toks[k];
+    if(t==='/'){ if(den!==null) return false; const n=toks[k+1]; if(!n||!/^\d+$/.test(n)) return false; den=+n; k++; continue; }
+    if(t[0]==='^') return false;
+    if(/^\d+$/.test(t)){ if(k!==0) return false; num=+t; continue; }
+    const v=t[0].toLowerCase(); if(letters[v]) return false; letters[v]=1;
+    if(t.length>1 && +t.slice(2)<2) return false;
+  }
+  const nL=Object.keys(letters).length, n=num===null?1:num;
+  if(n===0 && (nL||den)) return false;
+  if(num===1 && nL && den===null) return false;
+  if(den!==null && (den<=1 || gcd(n,den)!==1)) return false;
+  return true;
+}
+const isWrapped = s => s.startsWith('(') && stripParens(s)!==s;
+function fsig(str){
+  const plain=stripParens(str).replace(/^[+-]/,'');
+  if(isSimpleMono(plain)) return 'm'+polyKeyAbs(parse(str));
+  const pw=str.match(/^(.*)\^(\d+)$/);
+  if(pw && (isWrapped(pw[1]) || /^\d+$/.test(pw[1]))){
+    const b=stripParens(pw[1]).replace(/^[+-]/,'');
+    if(/^[a-z]+$/i.test(b)) return 'm'+polyKeyAbs(parse(str));
+    return '^'+pw[2]+'('+fsig(pw[1])+')';
+  }
+  const ts=splitTerms(stripParens(str));
+  if(ts.length>1) return 'g('+ts.map(termSig).sort().join(',')+')';
+  return 't('+termSig(ts[0])+')';
+}
+function termSig(t){
+  if(isSimpleMono(t.body)) return 'v'+polyKey(termPoly(t));
+  return '['+factorsOf(t.body).map(f=>(f.div?'/':'*')+fsig(f.str)).sort().join(',')+']'+polyKey(termPoly(t));
+}
+function lineSig(s){ return splitTerms(s).map(termSig).sort().join('|'); }
+function sameLine(input, expected){
+  try{ return lineSig(input)===lineSig(expected); }catch(e){ return false; }
+}
+/* fully factorized form, ignoring where the minus signs sit: (q−p)(p−r) = (p−q)(r−p) */
+function factorForm(str){
+  const ts=splitTerms(str); if(ts.length!==1) return null;
+  let mono=P.num(1); const groups=[];
+  for(const f of factorsOf(ts[0].body)){
+    if(f.div) return null;
+    let base=f.str, n=1;
+    const m=base.match(/^(.*)\^(\d+)$/);
+    if(m && isWrapped(m[1])){ base=m[1]; n=+m[2]; }
+    const inner=stripParens(base), its=splitTerms(inner);
+    if(its.length>1){
+      if(!its.every(t=>isSimpleMono(t.body))) return null;
+      const keys=its.map(t=>[...termPoly(t).keys()][0]);
+      if(new Set(keys).size!==keys.length) return null;   /* like terms not collected yet */
+      const k=polyKeyAbs(parse(inner)); for(let i=0;i<n;i++) groups.push(k);
+    } else {
+      if(!isSimpleMono(its[0].body)) return null;
+      mono=P.mul(mono, P.pow(termPoly(its[0]), P.num(n)));
+    }
+  }
+  return groups.sort().join(';')+'#'+polyKeyAbs(mono);
+}
+function sameFactorization(input, expected){
+  try{
+    const a=factorForm(input); if(a===null) return false;
+    return a===factorForm(expected) && P.eq(parse(input),parse(expected));
+  }catch(e){ return false; }
+}
+const unbracketedNeg = raw => /[*\/^+\-]-/.test(norm(raw));
+
+/* ---------- Display: stacked fractions, brackets, powers ----------
+   '|' in the string marks the typing caret. */
+const CARET='<span class="caret"></span>', BOX='<span class="ph">□</span>';
+function renderMath(src, typing){
+  const s=String(src).replace(/\s+/g,'').replace(/≡/g,'=').replace(/×/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-');
+  let i=0;
+  function atomAt(allowSign){
+    let pre='';
+    if(allowSign && s[i]==='-'){ pre='−'; i++; }
+    const ch=s[i]; let a=null;
+    if(ch===undefined) return pre?{h:pre+(typing?BOX:'')}:null;
+    if(/\d/.test(ch)){ let j=i; while(j<s.length&&/[\d.]/.test(s[j])) j++; a={h:s.slice(i,j)}; i=j; }
+    else if(/[a-z]/i.test(ch)){ a={h:`<i>${ch}</i>`}; i++; }
+    else if(ch==='|'){ i++; return {h:pre+CARET}; }
+    else if(ch==='('){
+      i++; const inner=seq(true); let closed=false;
+      if(s[i]===')'){ i++; closed=true; }
+      const sqb = /[(\[]/.test(inner.h);
+      a={h:(sqb?'[':'(')+inner.h+(closed?(sqb?']':')'):''), group:true, innerH:inner.h, sum:inner.sum, closed};
+    } else return pre?{h:pre}:null;
+    if(s[i]==='^'){
+      i++; let d=''; while(i<s.length&&/\d/.test(s[i])) d+=s[i++];
+      let cur=''; if(s[i]==='|'){ cur=CARET; i++; }
+      a.h += d ? `<sup>${d}${cur}</sup>` : (typing?`<sup>${BOX}${cur}</sup>`:'');
+      a.group=false;
+    }
+    if(s[i]==='|'){ a.h+=CARET; i++; }
+    if(pre){ a.h=pre+a.h; a.group=false; }
+    return a;
+  }
+  const strip = a => (a.group && a.sum && a.closed) ? a.innerH : a.h;
+  function seq(inParen){
+    const out=[]; let sum=false, prev='start';
+    while(i<s.length){
+      const ch=s[i];
+      if(ch===')'){ if(inParen) break; i++; out.push({k:'a',h:')'}); prev='atom'; continue; }
+      if(ch==='+'||ch==='-'){
+        i++; const unary = prev!=='atom'; if(!unary) sum=true;
+        out.push({k:unary?'u':'o', h:ch==='+'?'+':'−'}); prev='op'; continue;
+      }
+      if(ch==='*'){ i++; out.push({k:'o',h:'×'}); prev='op'; continue; }
+      if(ch==='='){ i++; out.push({k:'o',h:'='}); prev='op'; continue; }
+      if(ch==='±'){ i++; out.push({k:prev==='atom'?'o':'u',h:'±'}); prev='op'; continue; }
+      if(ch==='/'){
+        i++;
+        const num = prev==='atom' ? out.pop() : {h:typing?BOX:''};
+        const den = atomAt(true);
+        const dh = den ? strip(den) : (typing?BOX:'');
+        out.push({k:'a',h:`<span class="frac"><span class="nu">${strip(num)}</span><span class="de">${dh}</span></span>`});
+        prev='atom'; continue;
+      }
+      const a=atomAt(false); if(!a){ i++; continue; }
+      if(prev==='atom'){ const p=out.pop(); out.push({k:'a',h:p.h+a.h}); }
+      else out.push({k:'a',...a});
+      prev='atom';
+    }
+    return {h:out.map(c=>c.k==='o'?` ${c.h} `:c.h).join(''), sum};
+  }
+  return seq(false).h;
+}
+const fmtNum = n => String(n).replace('-','−');
+const subst = (formula, v) => formula.replace(/[a-z]/g, c => '('+v[c]+')');
+const valuesText = v => Object.keys(v).map(k=>`<i>${k}</i> = ${fmtNum(v[k])}`).join(' and ');
+
+const mathify = txt => String(txt).replace(/@([^@]+)@/g, (_,m)=>`<span class="mi">${renderMath(m)}</span>`);
+
+/* ---------- Question bank ----------
+   q: the question (* = ×, / = ÷ or fraction).  r: worksheet question number (blank = new).
+   pa: part (a) expression for two-part questions.
+   L: lines of working, each written after "=":  [expected | [accepted forms], step name, hint, flags]
+      flags  o = may be skipped,  A = belongs to part (a).   @...@ in a hint is shown as maths. */
+
+/* helpers that build lines from the identity's a and b */
+function rat(c){ for(let d=1;d<=2000;d++){ const n=Math.round(c*d); if(Math.abs(n/d-c)<1e-9) return [n,d]; } return [c,1]; }
+function monoStr(c,m){
+  const [n,d]=rat(Math.abs(c));
+  const L=Object.keys(m).filter(v=>m[v]).sort().map(v=>v+(m[v]>1?'^'+m[v]:'')).join('');
+  const num = L ? (n===1?'':String(n))+L : String(n);
+  return d>1 ? num+'/'+d : num;
+}
+function polyStr(polys){
+  let s='';
+  polys.forEach(p=>{ for(const [,t] of p){ if(Math.abs(t.c)<1e-12) continue; s += (t.c<0?'-':(s?'+':''))+monoStr(t.c,t.m); } });
+  return s||'0';
+}
+const pv = s => parse(s);
+const sqv = t => P.mul(pv(t),pv(t));
+const two = (A,B) => P.mul(P.num(2),P.mul(pv(A),pv(B)));
+function sq(t){ return /^([a-z]|\d+)$/.test(t) ? t+'^2' : '('+t+')^2'; }
+const one = s => polyStr([pv(s)]);
+
+const UI="Use the identity", SI="Simplify", CF="Take out the common factor", CB="Take out the common bracket",
+      SQ="Write as squares", SAME="Make the brackets the same", PAIR="Factorize each pair", SB="Simplify the bracket",
+      EX="Expand inside the bracket", RM="Remove the brackets", FA="Factorize part (a)";
+
+/* expand (A + B)(A − B) */
+function dosE(q,A,B,r){
+  const l1=`${sq(A)}-${sq(B)}`, alts=[l1];
+  if(B==='1') alts.push(`${sq(A)}-1`); if(A==='1') alts.push(`1-${sq(B)}`);
+  return {q,r,L:[[alts,UI,`This is @(a+b)(a-b)@ with @a=${A}@ and @b=${B}@. Write @a^2-b^2@.`],
+    [polyStr([sqv(A),P.neg(sqv(B))]),SI,`Work out each square: @${sq(A)}=${one(sq(A))}@ and @${sq(B)}=${one(sq(B))}@.`]]};
+}
+/* expand (A ± B)^2 */
+function psE(q,A,B,s,r){
+  const l1=`${sq(A)}${s}2(${A})(${B})+${sq(B)}`, alts=[l1];
+  if(B==='1') alts.push(`${sq(A)}${s}2(${A})(1)+1`); if(A==='1') alts.push(`1${s}2(1)(${B})+${sq(B)}`);
+  const mid = s==='-' ? P.neg(two(A,B)) : two(A,B);
+  return {q,r,L:[[alts,UI,`This is @(a${s}b)^2@ with @a=${A}@ and @b=${B}@. Write @a^2${s}2ab+b^2@ as @${sq(A)}${s}2(${A})(${B})+${sq(B)}@.`],
+    [polyStr([sqv(A),mid,sqv(B)]),SI,`@${sq(A)}=${one(sq(A))}@, @2(${A})(${B})=${one('2('+A+')('+B+')')}@ and @${sq(B)}=${one(sq(B))}@.`]]};
+}
+/* expand k × (identity) */
+function kE(q,k,kind,A,B,s,r){
+  const inner1 = kind==='d' ? `${sq(A)}-${sq(B)}` : `${sq(A)}${s}2(${A})(${B})+${sq(B)}`;
+  const parts = kind==='d' ? [sqv(A),P.neg(sqv(B))] : [sqv(A), s==='-'?P.neg(two(A,B)):two(A,B), sqv(B)];
+  const inner2 = polyStr(parts), K=pv(k);
+  const idt = kind==='d' ? '@(a+b)(a-b)=a^2-b^2@' : `@(a${s}b)^2=a^2${s}2ab+b^2@`;
+  return {q,r,L:[[`${k}(${inner1})`,UI,`Keep @${k}@ in front and use ${idt} with @a=${A}@ and @b=${B}@.`],
+    [`${k}(${inner2})`,"Simplify inside the bracket","Work out each square and product inside the bracket.","o"],
+    [polyStr(parts.map(p=>P.mul(K,p))),"Expand the bracket",`Multiply every term inside the bracket by @${k}@.`]]};
+}
+/* factorize A^2 − B^2 */
+function dosF(q,A,B,r){
+  const l1=`${sq(A)}-${sq(B)}`, alts=[l1];
+  if(B==='1') alts.push(`${sq(A)}-1`); if(A==='1') alts.push(`1-${sq(B)}`);
+  return {q,r,L:[[alts,SQ,`Write each term as a square: @${one(sq(A))}=${sq(A)}@ and @${one(sq(B))}=${sq(B)}@.`],
+    [`(${A}+${B})(${A}-${B})`,UI,`Use @a^2-b^2=(a+b)(a-b)@ with @a=${A}@ and @b=${B}@.`]]};
+}
+/* factorize A^2 ± 2AB + B^2 */
+function psF(q,A,B,s,r){
+  const l1=`${sq(A)}${s}2(${A})(${B})+${sq(B)}`, alts=[l1];
+  if(B==='1') alts.push(`${sq(A)}${s}2(${A})(1)+1`); if(A==='1') alts.push(`1${s}2(1)(${B})+${sq(B)}`);
+  return {q,r,L:[[alts,SQ,`The first and last terms are squares: @${sq(A)}@ and @${sq(B)}@. The middle term is @${s==='-'?'-':''}2(${A})(${B})@.`],
+    [`(${A}${s}${B})^2`,UI,`Use @a^2${s}2ab+b^2=(a${s}b)^2@ with @a=${A}@ and @b=${B}@.`]]};
+}
+/* factorize: common factor, then an identity */
+function cfF(q,h,inner,kind,A,B,s,r){
+  const id2 = kind==='d' ? `${sq(A)}-${sq(B)}` : `${sq(A)}${s}2(${A})(${B})+${sq(B)}`;
+  const fin = kind==='d' ? `${h}(${A}+${B})(${A}-${B})` : `${h}(${A}${s}${B})^2`;
+  const idt = kind==='d' ? '@a^2-b^2=(a+b)(a-b)@' : `@a^2${s}2ab+b^2=(a${s}b)^2@`;
+  return {q,r,L:[[`${h}(${inner})`,CF,`The HCF of the terms is @${h}@. Divide every term by it.`],
+    [`${h}(${id2})`,SQ,`Write the bracket using squares, with @a=${A}@ and @b=${B}@.`,"o"],
+    [fin,UI,`Use ${idt}. Keep @${h}@ in front.`]]};
+}
+const cf = (q,h,ans,r) => ({q,r,L:[[ans,CF,`The HCF of all the terms is @${h}@. Divide each term by @${h}@ and write the results in the bracket.`]]});
+
+const TYPES = [
+/* ===================== EXPANDING ===================== */
+{mode:"expand", name:"Difference of two squares", ids:[["(a+b)(a-b)","a^2-b^2"]],
+ tip:"Spot a and b, write a² − b², then work out each square.", qs:[
+ dosE("(a+3)(a-3)","a","3","Q48"), dosE("(5-b)(5+b)","5","b","Q49"), dosE("(1+2c)(1-2c)","1","2c","Q50"),
+ dosE("(4y-1)(4y+1)","4y","1","Q51"), dosE("(7m-3)(7m+3)","7m","3","Q52"), dosE("(2-5n)(2+5n)","2","5n","Q53"),
+ dosE("(2a-5b)(2a+5b)","2a","5b","Q54"), dosE("(9x-8y)(9x+8y)","9x","8y","Q55"), dosE("(3m+6n)(6n-3m)","6n","3m","Q56"),
+ dosE("(-4r-5s)(-4r+5s)","-4r","5s","Q57"), dosE("(x^2+3y)(x^2-3y)","x^2","3y","Q72"), dosE("(7m+2n^2)(7m-2n^2)","7m","2n^2","Q73"),
+ dosE("(3p-q)(3p+q)","3p","q","Q88(a)"),
+ dosE("(k+7)(k-7)","k","7"), dosE("(6-p)(6+p)","6","p"), dosE("(5x+2y)(5x-2y)","5x","2y"),
+ dosE("(3ab-1)(3ab+1)","3ab","1"), dosE("(y^3+4)(y^3-4)","y^3","4")
+]},
+{mode:"expand", name:"Perfect squares", ids:[["(a+b)^2","a^2+2ab+b^2"],["(a-b)^2","a^2-2ab+b^2"]],
+ tip:"Square the first term, double the product, square the last term.", qs:[
+ psE("(m+9)^2","m","9","+","Q58"), psE("(6+n)^2","6","n","+","Q59"), psE("(a-8)^2","a","8","-","Q60"),
+ psE("(10+b)^2","10","b","+","Q61"), psE("(7x+1)^2","7x","1","+","Q62"), psE("(1-5y)^2","1","5y","-","Q63"),
+ psE("(h+5k)^2","h","5k","+","Q64"), psE("(3x+7y)^2","3x","7y","+","Q65"), psE("(9s-t)^2","9s","t","-","Q66"),
+ psE("(5m-8n)^2","5m","8n","-","Q67"), psE("(-8x+3y)^2","-8x","3y","+","Q68"), psE("(-4x-2y)^2","-4x","2y","-","Q69"),
+ psE("(x-4)^2","x","4","-","Q89(a)"), psE("(y+5z)^2","y","5z","+","Q90(a)"),
+ psE("(p+6)^2","p","6","+"), psE("(2a-3)^2","2a","3","-"), psE("(4-x)^2","4","x","-"),
+ psE("(3m+5n)^2","3m","5n","+"), psE("(2k-7h)^2","2k","7h","-")
+]},
+{mode:"expand", name:"A number in front", ids:[["(a+b)(a-b)","a^2-b^2"],["(a±b)^2","a^2±2ab+b^2"]],
+ tip:"Keep the number in front, use the identity inside a bracket, then multiply every term by the number.", qs:[
+ kE("5(b+6)(b-6)","5","d","b","6","","Q74"), kE("-4(3a-4b)(4b+3a)","-4","d","3a","4b","","Q75"),
+ kE("3(4+y^3)(4-y^3)","3","d","4","y^3","","Q76"), kE("3(r+2)^2","3","s","r","2","+","Q84"),
+ kE("-2(m^2-2n)^2","-2","s","m^2","2n","-","Q85"),
+ kE("2(x+5)(x-5)","2","d","x","5",""), kE("-3(2a+1)^2","-3","s","2a","1","+"),
+ kE("4(3-y)(3+y)","4","d","3","y",""), kE("5(p-2q)^2","5","s","p","2q","-"), kE("6(m-3n)(m+3n)","6","d","m","3n","")
+]},
+{mode:"expand", name:"Identities with fractions", ids:[["(a+b)(a-b)","a^2-b^2"],["(a±b)^2","a^2±2ab+b^2"]],
+ tip:"Fractions work the same way. Square the top and the bottom: (x/2)² = x²/4.", qs:[
+ dosE("(x/2+3)(x/2-3)","x/2","3","Q70"), dosE("(5+y/3)(5-y/3)","5","y/3","Q71"),
+ kE("2(x/2-y/4)(x/2+y/4)","2","d","x/2","y/4","","Q77"), psE("(4h+3/2)^2","4h","3/2","+","Q78"),
+ psE("(x/3-9)^2","x/3","9","-","Q79"), psE("(m/2+8n)^2","m/2","8n","+","Q80"), psE("(y/3-6x)^2","y/3","6x","-","Q81"),
+ psE("(m/6+6n/5)^2","m/6","6n/5","+","Q82"), psE("(2h/3-3k/4)^2","2h/3","3k/4","-","Q83"),
+ kE("5(-2a/5+3b/2)^2","5","s","-2a/5","3b/2","+","Q86"), kE("-6(-2h/3-3k/2)^2","-6","s","-2h/3","3k/2","-","Q87"),
+ dosE("(x/3+2)(x/3-2)","x/3","2"), psE("(y/2-4)^2","y/2","4","-"), psE("(2a/3+b/2)^2","2a/3","b/2","+"),
+ dosE("(3-k/5)(3+k/5)","3","k/5"), kE("4(m/2-n/4)^2","4","s","m/2","n/4","-")
+]},
+{mode:"expand", name:"Using identities twice", ids:[["(a+b)(a-b)","a^2-b^2"],["(a±b)^2","a^2±2ab+b^2"]],
+ tip:"Group terms so an identity appears, use it, then use an identity again.", qs:[
+ {r:"Q88(b)",q:"(3p-q)(3p+q)(9p^2+q^2)",L:[
+   ["(9p^2-q^2)(9p^2+q^2)",UI,"Use @(a+b)(a-b)=a^2-b^2@ on the first two brackets: @(3p-q)(3p+q)=9p^2-q^2@."],
+   ["(9p^2)^2-(q^2)^2",UI,"Use the identity again, with @a=9p^2@ and @b=q^2@."],
+   ["81p^4-q^4",SI,"@(9p^2)^2=81p^4@ and @(q^2)^2=q^4@."]]},
+ {r:"Q89(b)",q:"(x-4+y)(x-4-y)",L:[
+   ["((x-4)+y)((x-4)-y)","Group the terms","Put @x-4@ in brackets in both factors.","o"],
+   ["(x-4)^2-y^2",UI,"Use @(a+b)(a-b)=a^2-b^2@ with @a=x-4@ and @b=y@."],
+   ["x^2-8x+16-y^2","Expand and simplify","@(x-4)^2=x^2-8x+16@, from part (a)."]]},
+ {r:"Q90(b)",q:"(x+y+5z)(x-y-5z)",L:[
+   ["(x+(y+5z))(x-(y+5z))","Group the terms","Write @x-y-5z@ as @x-(y+5z)@.","o"],
+   ["x^2-(y+5z)^2",UI,"Use @(a+b)(a-b)=a^2-b^2@ with @a=x@ and @b=y+5z@."],
+   ["x^2-(y^2+10yz+25z^2)","Expand the square","@(y+5z)^2=y^2+10yz+25z^2@, from part (a). Keep it in a bracket."],
+   ["x^2-y^2-10yz-25z^2",RM,"The minus in front changes the sign of every term in the bracket."]]},
+ {r:"Q91",q:"(x+y)^2(x-y)^2",L:[
+   ["((x+y)(x-y))^2","Group the brackets","@a^2b^2=(ab)^2@, so write @((x+y)(x-y))^2@.","o"],
+   ["(x^2-y^2)^2",UI,"@(x+y)(x-y)=x^2-y^2@."],
+   ["(x^2)^2-2(x^2)(y^2)+(y^2)^2",UI,"Use @(a-b)^2=a^2-2ab+b^2@ with @a=x^2@ and @b=y^2@."],
+   ["x^4-2x^2y^2+y^4",SI,"@(x^2)^2=x^4@."]]},
+ {r:"Q92",q:"(a+1)(a^2+1)(a-1)",L:[
+   ["(a+1)(a-1)(a^2+1)","Put the matching brackets together","Move @(a-1)@ next to @(a+1)@.","o"],
+   ["(a^2-1)(a^2+1)",UI,"@(a+1)(a-1)=a^2-1@."],
+   [["(a^2)^2-1^2","(a^2)^2-1"],UI,"Use the identity again with @a^2@ and @1@."],
+   ["a^4-1",SI,"@(a^2)^2=a^4@."]]},
+ {r:"Q93",q:"(x^2+3x+1)(x^2-3x+1)",L:[
+   ["((x^2+1)+3x)((x^2+1)-3x)","Group the terms","Put @x^2+1@ in brackets in both factors.","o"],
+   ["(x^2+1)^2-(3x)^2",UI,"Use @(a+b)(a-b)=a^2-b^2@ with @a=x^2+1@ and @b=3x@."],
+   ["x^4+2x^2+1-9x^2","Expand the square","@(x^2+1)^2=x^4+2x^2+1@ and @(3x)^2=9x^2@."],
+   ["x^4-7x^2+1",SI,"Collect the @x^2@ terms: @2x^2-9x^2@."]]},
+ {q:"(2a-b)(2a+b)(4a^2+b^2)",L:[
+   ["(4a^2-b^2)(4a^2+b^2)",UI,"@(2a-b)(2a+b)=4a^2-b^2@."],
+   ["(4a^2)^2-(b^2)^2",UI,"Use the identity again with @a=4a^2@ and @b=b^2@."],
+   ["16a^4-b^4",SI,"@(4a^2)^2=16a^4@."]]},
+ {q:"(m+n)^2(m-n)^2",L:[
+   ["((m+n)(m-n))^2","Group the brackets","Write @((m+n)(m-n))^2@.","o"],
+   ["(m^2-n^2)^2",UI,"@(m+n)(m-n)=m^2-n^2@."],
+   ["(m^2)^2-2(m^2)(n^2)+(n^2)^2",UI,"Use @(a-b)^2@ with @a=m^2@ and @b=n^2@."],
+   ["m^4-2m^2n^2+n^4",SI,"@(m^2)^2=m^4@."]]},
+ {q:"(y+3)(y^2+9)(y-3)",L:[
+   ["(y+3)(y-3)(y^2+9)","Put the matching brackets together","Move @(y-3)@ next to @(y+3)@.","o"],
+   ["(y^2-9)(y^2+9)",UI,"@(y+3)(y-3)=y^2-9@."],
+   ["(y^2)^2-9^2",UI,"Use the identity again with @y^2@ and @9@."],
+   ["y^4-81",SI,"@(y^2)^2=y^4@ and @9^2=81@."]]},
+ {q:"(a+b-3)(a+b+3)",L:[
+   ["((a+b)-3)((a+b)+3)","Group the terms","Put @a+b@ in brackets in both factors.","o"],
+   ["(a+b)^2-3^2",UI,"Use @(a+b)(a-b)=a^2-b^2@ with @a+b@ as the first term and @3@ as the second."],
+   ["a^2+2ab+b^2-9","Expand and simplify","@(a+b)^2=a^2+2ab+b^2@ and @3^2=9@."]]},
+ {q:"(2x+y-1)(2x-y+1)",L:[
+   ["(2x+(y-1))(2x-(y-1))","Group the terms","Write @-y+1@ as @-(y-1)@.","o"],
+   ["(2x)^2-(y-1)^2",UI,"Use @(a+b)(a-b)=a^2-b^2@ with @a=2x@ and @b=y-1@."],
+   ["4x^2-(y^2-2y+1)","Expand the square","@(y-1)^2=y^2-2y+1@. Keep it in a bracket."],
+   ["4x^2-y^2+2y-1",RM,"The minus in front changes the sign of every term in the bracket."]]}
+]},
+/* ===================== FACTORIZING ===================== */
+{mode:"factor", name:"Common factors", ids:[],
+ tip:"Find the HCF of all the terms (numbers and letters), take it out, and divide each term by it.", qs:[
+ cf("8a+8","8","8(a+1)","Q101"), cf("3x-12","3","3(x-4)","Q102"), cf("12a-30","6","6(2a-5)","Q103"),
+ cf("10x+15y","5","5(2x+3y)","Q104"), cf("ab-bc","b","b(a-c)","Q105"), cf("pq-2p^2","p","p(q-2p)","Q106"),
+ cf("2x^2+x^3","x^2","x^2(2+x)","Q107"), cf("5p^4-p^3","p^3","p^3(5p-1)","Q108"), cf("9ab-6b","3b","3b(3a-2)","Q109"),
+ cf("15pq+20qx","5q","5q(3p+4x)","Q110"), cf("14ax-35xy","7x","7x(2a-5y)","Q111"), cf("4p-12p^3q","4p","4p(1-3p^2q)","Q112"),
+ cf("3x+6y+9z","3","3(x+2y+3z)","Q113"), cf("ab+ac-ad","a","a(b+c-d)","Q114"), cf("16x+4xy+20xz","4x","4x(4+y+5z)","Q115"),
+ cf("5p^2-10pq+15p","5p","5p(p-2q+3)","Q116"), cf("-12p^2+16p^3-24p^4","-4p^2","-4p^2(3-4p+6p^2)","Q143"),
+ cf("14m^2n^3+21m^4n-7m^3n^2","7m^2n","7m^2n(2n^2+3m^2-mn)","Q144"),
+ cf("18y-24","6","6(3y-4)"), cf("6a^2b+9ab^2","3ab","3ab(2a+3b)"), cf("20m^3-15m^2","5m^2","5m^2(4m-3)"),
+ cf("8xy-12x^2y+4xy^2","4xy","4xy(2-3x+y)"), cf("-10k^2-25k","-5k","-5k(2k+5)")
+]},
+{mode:"factor", name:"Common brackets", ids:[],
+ tip:"A whole bracket can be a common factor. Make the brackets match first if you need to.", qs:[
+ {r:"Q145",q:"a(b-6)+c(b-6)",L:[["(b-6)(a+c)",CB,"Both terms have @(b-6)@. Take it out and put what's left, @a@ and @c@, in the other bracket."]]},
+ {r:"Q146",q:"x(5-y)-z(y-5)",L:[["x(5-y)+z(5-y)",SAME,"@-z(y-5)@ is the same as @+z(5-y)@."],["(5-y)(x+z)",CB,"Take out @(5-y)@."]]},
+ {r:"Q147",q:"(m+4)n+(m+4)r",L:[["(m+4)(n+r)",CB,"Both terms have @(m+4)@. Take it out."]]},
+ {r:"Q148",q:"(2p-q)r-(q-2p)s",L:[["(2p-q)r+(2p-q)s",SAME,"@-(q-2p)s@ is the same as @+(2p-q)s@."],["(2p-q)(r+s)",CB,"Take out @(2p-q)@."]]},
+ {r:"Q149",q:"p(2m+4n)+5q(m+2n)",L:[["2p(m+2n)+5q(m+2n)",SAME,"Take @2@ out of @(2m+4n)@: @p(2m+4n)=2p(m+2n)@."],["(m+2n)(2p+5q)",CB,"Take out @(m+2n)@."]]},
+ {r:"Q150",q:"(x-y)(x+3y)-x(3x+9y)",L:[
+   ["(x-y)(x+3y)-3x(x+3y)",SAME,"Take @3@ out of @(3x+9y)@: @x(3x+9y)=3x(x+3y)@."],
+   ["(x+3y)((x-y)-3x)",CB,"Take out @(x+3y)@. Put what's left in square brackets.","o"],
+   ["(x+3y)(-2x-y)",SB,"Collect the like terms: @x-y-3x=-2x-y@."]]},
+ {r:"Q151",q:"3(a+b)^2-(a-2b)(a+b)",L:[
+   ["(a+b)(3(a+b)-(a-2b))",CB,"@3(a+b)^2=3(a+b)(a+b)@. Take out one @(a+b)@."],
+   ["(a+b)(3a+3b-a+2b)",EX,"Expand @3(a+b)@ and remove the bracket @-(a-2b)@.","o"],
+   ["(a+b)(2a+5b)",SB,"Collect like terms: @3a-a@ and @3b+2b@."]]},
+ {r:"Q152",q:"(x-3y)(x-4y)-2(x-4y)^2",L:[
+   ["(x-4y)((x-3y)-2(x-4y))",CB,"@2(x-4y)^2=2(x-4y)(x-4y)@. Take out one @(x-4y)@."],
+   ["(x-4y)(x-3y-2x+8y)",EX,"Expand @-2(x-4y)@ inside the bracket.","o"],
+   ["(x-4y)(5y-x)",SB,"Collect like terms: @x-2x@ and @-3y+8y@."]]},
+ {q:"y(a+3)-2(a+3)",L:[["(a+3)(y-2)",CB,"Both terms have @(a+3)@. Take it out."]]},
+ {q:"4x(x-1)+(1-x)",L:[["4x(x-1)-(x-1)",SAME,"@(1-x)@ is the same as @-(x-1)@."],["(x-1)(4x-1)",CB,"Take out @(x-1)@. Don't forget the @-1@."]]},
+ {q:"(k+2)^2+3(k+2)",L:[["(k+2)((k+2)+3)",CB,"@(k+2)^2=(k+2)(k+2)@. Take out one @(k+2)@."],["(k+2)(k+5)",SB,"@k+2+3=k+5@."]]},
+ {q:"m(3m-n)-2n(n-3m)",L:[["m(3m-n)+2n(3m-n)",SAME,"@-2n(n-3m)@ is the same as @+2n(3m-n)@."],["(3m-n)(m+2n)",CB,"Take out @(3m-n)@."]]},
+ {q:"5(p-q)-(p-q)^2",L:[["(p-q)(5-(p-q))",CB,"@(p-q)^2=(p-q)(p-q)@. Take out one @(p-q)@."],["(p-q)(5-p+q)",SB,"Remove the inner bracket: @-(p-q)=-p+q@."]]}
+]},
+{mode:"factor", name:"Factorization by grouping", ids:[],
+ tip:"Group the terms in pairs, factorize each pair, then take out the common bracket.", qs:[
+ {r:"Q117",q:"xz+yz+2x+2y",L:[[["z(x+y)+2(x+y)","x(z+2)+y(z+2)"],PAIR,"Group @xz+yz@ and @2x+2y@. Take out @z@, then @2@."],["(x+y)(z+2)",CB,"Take out the common bracket."]]},
+ {r:"Q118",q:"am-bm+2a-2b",L:[[["m(a-b)+2(a-b)","a(m+2)-b(m+2)"],PAIR,"Group @am-bm@ and @2a-2b@."],["(a-b)(m+2)",CB,"Take out the common bracket."]]},
+ {r:"Q119",q:"5b-ab+5c-ac",L:[[["b(5-a)+c(5-a)","5(b+c)-a(b+c)"],PAIR,"Group @5b-ab@ and @5c-ac@. Take out @b@, then @c@."],["(5-a)(b+c)",CB,"Take out the common bracket."]]},
+ {r:"Q120",q:"6r-6m+am-ar",L:[[["6(r-m)-a(r-m)","r(6-a)-m(6-a)"],PAIR,"Group @6r-6m@ and @am-ar@. Take out @-a@ so the bracket matches: @am-ar=-a(r-m)@."],["(r-m)(6-a)",CB,"Take out the common bracket."]]},
+ {r:"Q121",q:"5ac+5bc-4a-4b",L:[[["5c(a+b)-4(a+b)","a(5c-4)+b(5c-4)"],PAIR,"Group @5ac+5bc@ and @-4a-4b@. Take out @5c@, then @-4@."],["(a+b)(5c-4)",CB,"Take out the common bracket."]]},
+ {r:"Q122",q:"2m-2n-7mx+7nx",L:[[["2(m-n)-7x(m-n)","m(2-7x)-n(2-7x)"],PAIR,"Group @2m-2n@ and @-7mx+7nx@. Take out @2@, then @-7x@."],["(m-n)(2-7x)",CB,"Take out the common bracket."]]},
+ {r:"Q123",q:"pq-p^2+pr-qr",L:[[["p(q-p)-r(q-p)","q(p-r)-p(p-r)"],PAIR,"Group @pq-p^2@ and @pr-qr@. Take out @p@, then @-r@: @pr-qr=-r(q-p)@."],["(q-p)(p-r)",CB,"Take out the common bracket."]]},
+ {r:"Q124",q:"7u^2-7uv-3v+3u",L:[[["7u(u-v)+3(u-v)","u(7u+3)-v(7u+3)"],PAIR,"Group @7u^2-7uv@ and @-3v+3u@. Take out @7u@, then @3@."],["(u-v)(7u+3)",CB,"Take out the common bracket."]]},
+ {r:"Q153",q:"1-abcd-ac+bd",L:[[["(1-ac)+bd(1-ac)","1(1-ac)+bd(1-ac)","(1+bd)-ac(1+bd)"],PAIR,"Group @1-ac@ and @bd-abcd@. Take out @bd@ from the second pair."],["(1-ac)(1+bd)",CB,"Take out @(1-ac)@. The first term leaves @1@."]]},
+ {r:"Q154",q:"8k^3+4k^2+32k+16",L:[
+   ["4(2k^3+k^2+8k+4)",CF,"Every term is a multiple of @4@."],
+   [["4(k^2(2k+1)+4(2k+1))","4(2k(k^2+4)+(k^2+4))"],PAIR,"Inside the bracket, group @2k^3+k^2@ and @8k+4@."],
+   ["4(2k+1)(k^2+4)",CB,"Take out @(2k+1)@. Keep the @4@ in front."]]},
+ {q:"ax+ay+bx+by",L:[[["a(x+y)+b(x+y)","x(a+b)+y(a+b)"],PAIR,"Group @ax+ay@ and @bx+by@."],["(x+y)(a+b)",CB,"Take out the common bracket."]]},
+ {q:"3pq-6p+q-2",L:[[["3p(q-2)+(q-2)","3p(q-2)+1(q-2)","q(3p+1)-2(3p+1)"],PAIR,"Group @3pq-6p@ and @q-2@. The second pair is @1(q-2)@."],["(q-2)(3p+1)",CB,"Take out @(q-2)@. The second term leaves @1@."]]},
+ {q:"x^3-2x^2+5x-10",L:[["x^2(x-2)+5(x-2)",PAIR,"Group @x^3-2x^2@ and @5x-10@."],["(x-2)(x^2+5)",CB,"Take out the common bracket."]]},
+ {q:"2mn-8m-3n+12",L:[[["2m(n-4)-3(n-4)","n(2m-3)-4(2m-3)"],PAIR,"Group @2mn-8m@ and @-3n+12@. Take out @2m@, then @-3@."],["(n-4)(2m-3)",CB,"Take out the common bracket."]]},
+ {q:"6ab-4a-9b+6",L:[[["2a(3b-2)-3(3b-2)","3b(2a-3)-2(2a-3)"],PAIR,"Group @6ab-4a@ and @-9b+6@. Take out @2a@, then @-3@."],["(3b-2)(2a-3)",CB,"Take out the common bracket."]]}
+]},
+{mode:"factor", name:"Difference of two squares", ids:[["a^2-b^2","(a+b)(a-b)"]],
+ tip:"Write both terms as squares, then use a² − b² = (a + b)(a − b).", qs:[
+ dosF("a^2-64","a","8","Q125"), dosF("100-b^2","10","b","Q126"), dosF("36x^2-1","6x","1","Q127"),
+ dosF("1-25y^2","1","5y","Q128"), dosF("4m^2-9n^2","2m","3n","Q129"), dosF("81x^2-16y^2","9x","4y","Q130"),
+ dosF("a^2b^2-49","ab","7","Q131"), dosF("-144+x^2y^2","xy","12","Q132"),
+ dosF("y^2-121","y","11"), dosF("49p^2-4","7p","2"), dosF("9-16k^2","3","4k"),
+ dosF("64m^2-25n^2","8m","5n"), dosF("p^2q^2-1","pq","1")
+]},
+{mode:"factor", name:"Perfect squares", ids:[["a^2+2ab+b^2","(a+b)^2"],["a^2-2ab+b^2","(a-b)^2"]],
+ tip:"Check the first and last terms are squares and the middle term is 2ab.", qs:[
+ psF("a^2+16a+64","a","8","+","Q133"), psF("b^2-10b+25","b","5","-","Q134"), psF("49x^2+14x+1","7x","1","+","Q135"),
+ psF("1-12y+36y^2","1","6y","-","Q136"), psF("4m^2+28m+49","2m","7","+","Q137"), psF("25m^2-30m+9","5m","3","-","Q138"),
+ psF("x^2+18xy+81y^2","x","9y","+","Q139"), psF("64m^2-16mn+n^2","8m","n","-","Q140"), psF("16h^2+40hk+25k^2","4h","5k","+","Q141"),
+ psF("4k^2-44ky+121y^2","2k","11y","-","Q142"),
+ psF("p^2+6p+9","p","3","+"), psF("y^2-20y+100","y","10","-"), psF("9a^2+12a+4","3a","2","+"),
+ psF("36-12k+k^2","6","k","-"), psF("16x^2-56xy+49y^2","4x","7y","-")
+]},
+{mode:"factor", name:"Common factor, then an identity", ids:[["a^2-b^2","(a+b)(a-b)"],["a^2±2ab+b^2","(a±b)^2"]],
+ tip:"Take out the common factor first, then use an identity on what's left.", qs:[
+ cfF("45x^2-80y^2","5","9x^2-16y^2","d","3x","4y","","Q155"),
+ cfF("75p^2-12q^2r^2","3","25p^2-4q^2r^2","d","5p","2qr","","Q156"),
+ {r:"Q157",q:"(x+y)^2-(x+z)^2",L:[
+   ["((x+y)+(x+z))((x+y)-(x+z))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=x+y@ and @b=x+z@."],
+   ["(x+y+x+z)(x+y-x-z)",RM,"Remove the inner brackets. The minus changes both signs in @(x+z)@.","o"],
+   ["(2x+y+z)(y-z)",SB,"Collect like terms in each bracket."]]},
+ {r:"Q158",q:"36(x+2)^2-(x-3)^2",L:[
+   ["(6(x+2))^2-(x-3)^2",SQ,"@36(x+2)^2=(6(x+2))^2@.","o"],
+   ["(6(x+2)+(x-3))(6(x+2)-(x-3))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=6(x+2)@ and @b=x-3@."],
+   ["(6x+12+x-3)(6x+12-x+3)",RM,"Expand @6(x+2)@ and remove the inner brackets.","o"],
+   ["(7x+9)(5x+15)",SB,"Collect like terms in each bracket."],
+   ["5(7x+9)(x+3)",CF,"@5x+15=5(x+3)@. Take out the 5."]]},
+ cfF("3x^2+18x+27","3","x^2+6x+9","s","x","3","+","Q159"),
+ cfF("y^3-16y^4+64y^5","y^3","1-16y+64y^2","s","1","8y","-","Q160"),
+ cfF("6m-60m^2+150m^3","6m","1-10m+25m^2","s","1","5m","-","Q161"),
+ cfF("-16a^3+16a^2b-4ab^2","-4a","4a^2-4ab+b^2","s","2a","b","-","Q162"),
+ cfF("2x^2-18","2","x^2-9","d","x","3",""), cfF("3a^2-12ab+12b^2","3","a^2-4ab+4b^2","s","a","2b","-"),
+ cfF("5k^3-20k","5k","k^2-4","d","k","2",""), cfF("8m^2+40m+50","2","4m^2+20m+25","s","2m","5","+"),
+ cfF("12y^2-27","3","4y^2-9","d","2y","3","")
+]},
+{mode:"factor", name:"Two-part and harder factorization", ids:[["a^2-b^2","(a+b)(a-b)"],["a^2±2ab+b^2","(a±b)^2"]],
+ tip:"Factorize part (a) first. Then find the part (a) expression inside part (b) and use it.", qs:[
+ {r:"Q163",pa:"12x^3y-18x^4",q:"12x^3y-18x^4+10y-15x",L:[
+   ["6x^3(2y-3x)",CF,"The HCF of @12x^3y@ and @18x^4@ is @6x^3@.","A"],
+   ["6x^3(2y-3x)+5(2y-3x)",FA,"Use part (a) for the first two terms, and take out @5@ from @10y-15x@."],
+   ["(2y-3x)(6x^3+5)",CB,"Take out @(2y-3x)@."]]},
+ {r:"Q164",pa:"45a^3-15a^2b",q:"45a^3-15a^2b+3ab^2-b^3",L:[
+   ["15a^2(3a-b)",CF,"The HCF of @45a^3@ and @15a^2b@ is @15a^2@.","A"],
+   ["15a^2(3a-b)+b^2(3a-b)",FA,"Use part (a), and take out @b^2@ from @3ab^2-b^3@."],
+   ["(3a-b)(15a^2+b^2)",CB,"Take out @(3a-b)@."]]},
+ {r:"Q165",pa:"4x^2-25y^2",q:"6x+15y-4x^2+25y^2",L:[
+   [["(2x)^2-(5y)^2"],SQ,"@4x^2=(2x)^2@ and @25y^2=(5y)^2@.","Ao"],
+   ["(2x+5y)(2x-5y)",UI,"Use @a^2-b^2=(a+b)(a-b)@.","A"],
+   ["3(2x+5y)-(4x^2-25y^2)","Group the terms","Take out @3@ from @6x+15y@, and put @-4x^2+25y^2@ as @-(4x^2-25y^2)@.","o"],
+   ["3(2x+5y)-(2x+5y)(2x-5y)",FA,"Use part (a): @4x^2-25y^2=(2x+5y)(2x-5y)@."],
+   ["(2x+5y)(3-(2x-5y))",CB,"Take out @(2x+5y)@.","o"],
+   ["(2x+5y)(3-2x+5y)",SB,"Remove the inner bracket: @-(2x-5y)=-2x+5y@."]]},
+ {r:"Q166",pa:"49a^2-16b^2",q:"49a^2-16b^2-35a-20b",L:[
+   ["(7a)^2-(4b)^2",SQ,"@49a^2=(7a)^2@ and @16b^2=(4b)^2@.","Ao"],
+   ["(7a+4b)(7a-4b)",UI,"Use @a^2-b^2=(a+b)(a-b)@.","A"],
+   ["(7a+4b)(7a-4b)-5(7a+4b)",FA,"Use part (a), and take out @-5@ from @-35a-20b@."],
+   ["(7a+4b)(7a-4b-5)",CB,"Take out @(7a+4b)@."]]},
+ {r:"Q167",pa:"x^2+18x+81",q:"(3x+y)^2-x^2-18x-81",L:[
+   ["x^2+2(x)(9)+9^2",SQ,"@81=9^2@ and @18x=2(x)(9)@.","Ao"],
+   ["(x+9)^2",UI,"Use @a^2+2ab+b^2=(a+b)^2@.","A"],
+   ["(3x+y)^2-(x^2+18x+81)","Group the terms","Put the last three terms in a bracket with a minus in front.","o"],
+   ["(3x+y)^2-(x+9)^2",FA,"Use part (a)."],
+   ["((3x+y)+(x+9))((3x+y)-(x+9))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=3x+y@ and @b=x+9@."],
+   ["(3x+y+x+9)(3x+y-x-9)",RM,"Remove the inner brackets.","o"],
+   ["(4x+y+9)(2x+y-9)",SB,"Collect like terms in each bracket."]]},
+ {r:"Q168",pa:"36p^2-12p+1",q:"(2q-7p)^2-36p^2+12p-1",L:[
+   [["(6p)^2-2(6p)(1)+1^2","(6p)^2-2(6p)(1)+1"],SQ,"@36p^2=(6p)^2@, @1=1^2@ and @12p=2(6p)(1)@.","Ao"],
+   ["(6p-1)^2",UI,"Use @a^2-2ab+b^2=(a-b)^2@.","A"],
+   ["(2q-7p)^2-(36p^2-12p+1)","Group the terms","Put the last three terms in a bracket with a minus in front.","o"],
+   ["(2q-7p)^2-(6p-1)^2",FA,"Use part (a)."],
+   ["((2q-7p)+(6p-1))((2q-7p)-(6p-1))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=2q-7p@ and @b=6p-1@."],
+   ["(2q-7p+6p-1)(2q-7p-6p+1)",RM,"Remove the inner brackets.","o"],
+   ["(2q-p-1)(2q-13p+1)",SB,"Collect like terms in each bracket."]]},
+ {r:"Q169",pa:"m^2+10mn+25n^2",q:"m^2+10mn+25n^2-mr-5nr",L:[
+   ["m^2+2(m)(5n)+(5n)^2",SQ,"@25n^2=(5n)^2@ and @10mn=2(m)(5n)@.","Ao"],
+   ["(m+5n)^2",UI,"Use @a^2+2ab+b^2=(a+b)^2@.","A"],
+   ["(m+5n)^2-r(m+5n)",FA,"Use part (a), and take out @-r@ from @-mr-5nr@."],
+   ["(m+5n)(m+5n-r)",CB,"Take out one @(m+5n)@."]]},
+ {r:"Q170",pa:"x^2-14xy+49y^2",q:"x^2-14xy+49y^2-xz+7yz",L:[
+   ["x^2-2(x)(7y)+(7y)^2",SQ,"@49y^2=(7y)^2@ and @14xy=2(x)(7y)@.","Ao"],
+   ["(x-7y)^2",UI,"Use @a^2-2ab+b^2=(a-b)^2@.","A"],
+   ["(x-7y)^2-z(x-7y)",FA,"Use part (a), and take out @-z@ from @-xz+7yz@."],
+   ["(x-7y)(x-7y-z)",CB,"Take out one @(x-7y)@."]]},
+ {r:"Q171",pa:"m^2-m^3n+m^3",q:"m^2-m^3n+m^3-1+mn-m",L:[
+   ["m^2(1-mn+m)",CF,"The HCF of the three terms is @m^2@.","A"],
+   ["m^2(1-mn+m)-(1-mn+m)",FA,"Use part (a). The last three terms are @-(1-mn+m)@."],
+   ["(1-mn+m)(m^2-1)",CB,"Take out @(1-mn+m)@."],
+   ["(1-mn+m)(m+1)(m-1)",UI,"@m^2-1@ is a difference of two squares."]]},
+ {r:"Q172",pa:"x^4-2x^2y+4x^3",q:"x^2-2y+4x-x^4+2x^2y-4x^3",L:[
+   ["x^2(x^2-2y+4x)",CF,"The HCF of the three terms is @x^2@.","A"],
+   ["(x^2-2y+4x)-(x^4-2x^2y+4x^3)","Group the terms","Put the last three terms in a bracket with a minus in front.","o"],
+   ["(x^2-2y+4x)-x^2(x^2-2y+4x)",FA,"Use part (a)."],
+   ["(x^2-2y+4x)(1-x^2)",CB,"Take out @(x^2-2y+4x)@. The first term leaves @1@."],
+   ["(x^2-2y+4x)(1+x)(1-x)",UI,"@1-x^2@ is a difference of two squares."]]},
+ {r:"Q173",q:"a(a-1)-c(c-1)",L:[
+   ["a^2-a-c^2+c","Expand the brackets","@a(a-1)=a^2-a@ and @-c(c-1)=-c^2+c@."],
+   ["(a^2-c^2)-(a-c)","Group the terms","Put the squares together and the other two terms together.","o"],
+   ["(a+c)(a-c)-(a-c)",UI,"@a^2-c^2=(a+c)(a-c)@."],
+   ["(a-c)(a+c-1)",CB,"Take out @(a-c)@. The second term leaves @-1@."]]},
+ {r:"Q174",q:"x^2-4y^2-2x+1",L:[
+   ["(x^2-2x+1)-4y^2","Group the terms","Put @x^2-2x+1@ together.","o"],
+   ["(x-1)^2-(2y)^2",UI,"@x^2-2x+1=(x-1)^2@ and @4y^2=(2y)^2@."],
+   ["((x-1)+2y)((x-1)-2y)",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=x-1@ and @b=2y@.","o"],
+   ["(x-1+2y)(x-1-2y)",RM,"Remove the inner brackets."]]},
+ {r:"Q175",q:"1+x^2y^2-x^2-y^2",L:[
+   [["(1-x^2)-y^2(1-x^2)","(1-y^2)-x^2(1-y^2)"],PAIR,"Group @1-x^2@ and @x^2y^2-y^2@. Take out @-y^2@ from the second pair."],
+   ["(1-x^2)(1-y^2)",CB,"Take out @(1-x^2)@."],
+   ["(1+x)(1-x)(1+y)(1-y)",UI,"Both brackets are differences of two squares."]]},
+ {pa:"8m^3-12m^2n",q:"8m^3-12m^2n+6m-9n",L:[
+   ["4m^2(2m-3n)",CF,"The HCF of @8m^3@ and @12m^2n@ is @4m^2@.","A"],
+   ["4m^2(2m-3n)+3(2m-3n)",FA,"Use part (a), and take out @3@ from @6m-9n@."],
+   ["(2m-3n)(4m^2+3)",CB,"Take out @(2m-3n)@."]]},
+ {pa:"9a^2-4b^2",q:"9a^2-4b^2+6a+4b",L:[
+   ["(3a)^2-(2b)^2",SQ,"@9a^2=(3a)^2@ and @4b^2=(2b)^2@.","Ao"],
+   ["(3a+2b)(3a-2b)",UI,"Use @a^2-b^2=(a+b)(a-b)@.","A"],
+   ["(3a+2b)(3a-2b)+2(3a+2b)",FA,"Use part (a), and take out @2@ from @6a+4b@."],
+   ["(3a+2b)(3a-2b+2)",CB,"Take out @(3a+2b)@."]]},
+ {pa:"y^2-12y+36",q:"(x+y)^2-y^2+12y-36",L:[
+   ["y^2-2(y)(6)+6^2",SQ,"@36=6^2@ and @12y=2(y)(6)@.","Ao"],
+   ["(y-6)^2",UI,"Use @a^2-2ab+b^2=(a-b)^2@.","A"],
+   ["(x+y)^2-(y^2-12y+36)","Group the terms","Put the last three terms in a bracket with a minus in front.","o"],
+   ["(x+y)^2-(y-6)^2",FA,"Use part (a)."],
+   ["((x+y)+(y-6))((x+y)-(y-6))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=x+y@ and @b=y-6@."],
+   ["(x+y+y-6)(x+y-y+6)",RM,"Remove the inner brackets.","o"],
+   ["(x+2y-6)(x+6)",SB,"Collect like terms in each bracket."]]},
+ {pa:"p^2+8pq+16q^2",q:"p^2+8pq+16q^2-3p-12q",L:[
+   ["p^2+2(p)(4q)+(4q)^2",SQ,"@16q^2=(4q)^2@ and @8pq=2(p)(4q)@.","Ao"],
+   ["(p+4q)^2",UI,"Use @a^2+2ab+b^2=(a+b)^2@.","A"],
+   ["(p+4q)^2-3(p+4q)",FA,"Use part (a), and take out @-3@ from @-3p-12q@."],
+   ["(p+4q)(p+4q-3)",CB,"Take out one @(p+4q)@."]]},
+ {q:"x^2-y^2+4y-4",L:[
+   ["x^2-(y^2-4y+4)","Group the terms","Put the last three terms in a bracket with a minus in front."],
+   ["x^2-(y-2)^2",UI,"@y^2-4y+4=(y-2)^2@."],
+   ["(x+(y-2))(x-(y-2))",UI,"Use @a^2-b^2=(a+b)(a-b)@ with @a=x@ and @b=y-2@.","o"],
+   ["(x+y-2)(x-y+2)",RM,"Remove the inner brackets."]]}
+]}
+];
+
+/* ---------- Sound effects (Web Audio, no files) ---------- */
+const SFX={ctx:null,on:true};
+try{ if(localStorage.getItem('factorit-sound')==='off') SFX.on=false; }catch(e){}
+function audio(){
+  if(!SFX.ctx){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; try{ SFX.ctx=new C(); }catch(e){ return null; } }
+  if(SFX.ctx.state==='suspended') SFX.ctx.resume();
+  return SFX.ctx;
+}
+function tone(freq,start,dur,type,vol,slideTo){
+  if(!SFX.on) return; const c=audio(); if(!c) return;
+  const t=c.currentTime+start, o=c.createOscillator(), g=c.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.18,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05);
+}
+const sound={
+  key(){ tone(900,0,0.035,'triangle',0.04); },
+  correct(){ tone(659,0,0.12,'sine',0.2); tone(988,0.09,0.22,'sine',0.2); },
+  double(){ tone(659,0,0.1,'sine',0.2); tone(880,0.08,0.1,'sine',0.2); tone(1175,0.16,0.25,'sine',0.2); },
+  wrong(){ tone(220,0,0.18,'sawtooth',0.09,150); tone(160,0.14,0.26,'sawtooth',0.08,110); },
+  tip(){ tone(520,0,0.1,'triangle',0.12); tone(470,0.09,0.14,'triangle',0.1); },
+  cleared(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*0.09,0.28,'triangle',0.16)); },
+  retry(){ tone(523,0,0.16,'triangle',0.14); tone(392,0.14,0.28,'triangle',0.12); },
+  trophy(){ [[523,0],[523,.14],[523,.28],[659,.42],[784,.62],[659,.82],[784,.96],[1047,1.12]].forEach(([f,s],i)=>tone(f,s,i===7?0.7:0.2,'triangle',0.17));
+            [[262,0],[330,.42],[392,.96],[523,1.12]].forEach(([f,s])=>tone(f,s,0.5,'sine',0.08)); }
+};
+const SPK_ON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SPK_OFF='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderMute(){
+  const b=document.getElementById('muteBtn');
+  b.innerHTML = (SFX.on?SPK_ON:SPK_OFF) + (SFX.on?'Sound on':'Sound off');
+  b.setAttribute('aria-pressed', String(SFX.on));
+}
+
+/* ---------- Game ---------- */
+const $=s=>document.querySelector(s);
+const TICK='<svg class="mark tick" viewBox="0 0 24 24" aria-label="correct"><path d="M4 13l5 5L20 6"/></svg>';
+let S=null;
+const flagsOf = l => l[3]||'';
+const altsOf = l => Array.isArray(l[0]) ? l[0] : [l[0]];
+
+function newState(){
+  return {t:0, score:0, right:0, wrong:0, answered:0, cleared:[], used:TYPES.map(()=>new Set()),
+          q:null, qi:-1, step:0, rows:[], tries:0, stuck:0, mistakes:0, input:'', follow:false, revealed:false, done:false, vars:[]};
+}
+function show(id){ ['startView','playView','winView'].forEach(v=>$('#'+v).hidden = v!==id); window.scrollTo(0,0); }
+function renderProgress(){
+  $('#progress').innerHTML = TYPES.map((ty,i)=>{
+    const done = S && S.cleared.includes(i);
+    const cls = done ? 'done' : (S && i===S.t && !$('#playView').hidden ? 'now' : '');
+    return `<li class="${cls}" title="${ty.mode==='expand'?'Expand':'Factorize'}: ${ty.name}">${done?'✓':i+1}</li>`;
+  }).join('');
+}
+const showNum = n => String(n).replace('-','−');
+function renderScore(){ const b=$('#score'); b.textContent = S?showNum(S.score):0; b.classList.toggle('neg', !!S && S.score<0); }
+function floatScore(txt, up){
+  const f=document.createElement('span'); f.className='float '+(up?'up':'down'); f.textContent=txt;
+  $('.score').appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+
+function startGame(){ audio(); S=newState(); show('playView'); loadQuestion(false); }
+
+function pickQuestion(ti, follow){
+  const qs=TYPES[ti].qs, used=S.used[ti];
+  let pool=qs.map((_,i)=>i).filter(i=>!used.has(i));
+  if(!pool.length){ used.clear(); pool=qs.map((_,i)=>i).filter(i=>i!==S.qi); }
+  const pref = follow ? pool.filter(i=>!qs[i].r) : pool.filter(i=>qs[i].r);
+  if(pref.length) pool=pref;
+  const i=pool[Math.floor(Math.random()*pool.length)]; used.add(i); return i;
+}
+
+function loadQuestion(follow){
+  S.qi=pickQuestion(S.t, follow);
+  S.q=TYPES[S.t].qs[S.qi];
+  S.vars=[...new Set((S.q.q+(S.q.pa||'')).match(/[a-z]/g))].sort();
+  Object.assign(S,{step:0,rows:[],tries:0,stuck:0,mistakes:0,input:'',follow,revealed:false,done:false});
+  $('#padArea').hidden=false; $('#resultArea').hidden=true;
+  $('#letters').innerHTML = S.vars.map(v=>`<button class="key" data-k="${v}" type="button">${v}</button>`).join('');
+  setFeedback('', ''); hideHint();
+  renderProgress(); renderScore(); renderSheet();
+}
+
+const ty = () => TYPES[S.t];
+const isA = i => flagsOf(S.q.L[i]).includes('A');
+const target = i => parse(isA(i) ? S.q.pa : S.q.q);
+const isFinalFactor = i => ty().mode==='factor' && (i===S.q.L.length-1 || (isA(i) && !isA(i+1)));
+function stepLabel(i){ const l=S.q.L[i]; return l[1] + (flagsOf(l).includes('o') ? ' (optional)' : ''); }
+function lineOK(raw,i){
+  const a=altsOf(S.q.L[i]);
+  return a.some(x=>sameLine(raw,x)) || (isFinalFactor(i) && sameFactorization(raw,a[0]));
+}
+function prevRaw(){
+  const i=S.step;
+  if(i===0) return S.q.pa||S.q.q;
+  if(S.q.pa && isA(i-1) && !isA(i)) return S.q.q;
+  return S.rows[S.rows.length-1].raw;
+}
+
+function renderSheet(){
+  const T=ty(), q=S.q, L=q.L;
+  const src = S.follow ? '<span class="src follow">One more question of this type</span>'
+            : `<span class="src">${q.r?`Worksheet ${q.r}`:'New question'}</span>`;
+  const verb = T.mode==='expand' ? 'Expand' : 'Factorize';
+  let h=`<div class="qmeta"><h2><span class="mode ${T.mode}">${verb}</span>Type ${S.t+1} of ${TYPES.length}: ${T.name}</h2>${src}</div>
+    <p class="tip">${T.tip}</p>
+    ${T.ids.length?`<div class="idbox">${T.ids.map(([a,b])=>`<span>${renderMath(a)} ≡ ${renderMath(b)}</span>`).join('')}</div>`:''}
+    <div class="work">`;
+  const head = (lab, expr) => `<div class="row head"><span class="eqs">${lab}</span><span class="ex">${renderMath(expr)}</span><span class="note">${verb}</span></div>`;
+  h += q.pa ? head('(a)', q.pa) : head('', q.q);
+  const doneLines = new Set(); S.rows.forEach(r=>r.steps.forEach(k=>doneLines.add(k)));
+  let rowIdx=0;
+  const bHead = i => (q.pa && i>0 && isA(i-1) && !isA(i)) ? head('(b)', q.q) : '';
+  /* finished rows */
+  S.rows.forEach((r,ri)=>{
+    h += bHead(r.steps[0]);
+    const a=r.steps[0]+1, b=r.steps[r.steps.length-1]+1;
+    const mg = `<span class="mg">${a===b?`Step<br>${a}`:`Steps<br>${a}–${b}`}</span>`;
+    h+=`<div class="row done${ri===S.rows.length-1&&S.fresh?' new':''}"><span class="eqs">${mg}=</span>
+        <span class="ex ${r.revealed?'revealed':''}">${renderMath(r.raw)}${TICK}</span>
+        <span class="note">${r.steps.map((k,j)=>j?L[k][1].toLowerCase():L[k][1]).join(', then ')}</span></div>`;
+  });
+  if(!S.done){
+    h += bHead(S.step);
+    h+=`<div class="row cur"><span class="eqs"><span class="mg"><span>Step<br>${S.step+1}</span></span>=</span>
+        <span class="ex"><span class="typing" id="inlineTyping"></span></span>
+        <span class="note">${stepLabel(S.step)}</span></div>`;
+    if(S.tries) h+=`<span class="wrongs">${S.tries} wrong ${S.tries>1?'tries':'try'} on this line</span>`;
+    for(let j=S.step+1;j<L.length;j++){
+      h += bHead(j);
+      h+=`<div class="row future"><span class="eqs"><span class="mg">Step<br>${j+1}</span>=</span><span class="ex">……</span><span class="note">${stepLabel(j)}</span></div>`;
+    }
+  }
+  h+='</div>';
+  $('#sheet').innerHTML=h; S.fresh=false;
+  renderScreen();
+}
+
+function renderScreen(){
+  const h = renderMath(S.input+'|', true);
+  $('#screenVal').innerHTML = '<span class="eqs">=</span>' + h;
+  const it=$('#inlineTyping'); if(it) it.innerHTML = h;
+  $('#screenLabel').textContent = S.done ? 'Done' : `Step ${S.step+1} of ${S.q.L.length}: ${stepLabel(S.step)}`;
+}
+function setFeedback(msg, cls){ const f=$('#feedback'); f.textContent=msg; f.className='feedback '+(cls||''); }
+function showHint(html){ const h=$('#hint'); h.innerHTML=html; h.hidden=false; }
+function hideHint(){ $('#hint').hidden=true; }
+
+function press(k){
+  if(!S || S.done || $('#playView').hidden) return;
+  if(k==='enter') return submit();
+  sound.key();
+  if(k==='back') S.input=S.input.slice(0,-1);
+  else if(k==='clear') S.input='';
+  else if(k==='^'){
+    if(!/[a-z0-9)]$/i.test(S.input)){ setFeedback('Type a letter, number or closing bracket first, then press xⁿ.','note'); return; }
+    S.input+='^';
+  }
+  else if(S.input.length<60) S.input+=k;
+  renderScreen();
+}
+
+function submit(){
+  const raw=S.input;
+  if(!raw.trim()){ setFeedback('Type this line first.','note'); return; }
+  let p;
+  try{ p=parse(raw); }catch(e){ setFeedback('This line is unfinished. Check the brackets and the last thing you typed.','note'); return; }
+  const i=S.step, L=S.q.L, ln=L[i];
+  if(!P.eq(p,target(i))) return lineWrong();
+  if(unbracketedNeg(raw)) return tip('Put negative terms in brackets, like 2(−4x)(3y), and avoid two signs in a row.');
+  if(norm(raw)===norm(prevRaw())) return tip('This is the same as the line above. Now do the next step: '+ln[1].toLowerCase()+'.');
+  if(lineOK(raw,i)) return accept(raw,[i]);
+  if(flagsOf(ln).includes('o') && i+1<L.length && lineOK(raw,i+1)) return accept(raw,[i,i+1]);
+  for(let j=i+1;j<L.length;j++) if(P.eq(p,target(j)) && lineOK(raw,j))
+    return tip(`Your line is right, but you jumped ahead. Show this step first: ${ln[1].toLowerCase()}.`);
+  if(isFinalFactor(i)){
+    return tip(splitTerms(raw).length===1
+      ? 'Your line is equal, but it isn’t fully factorized yet. Check each bracket for a common factor or an identity, and collect like terms.'
+      : 'Your line is equal, but it isn’t factorized yet. Write it as a product.');
+  }
+  if(ty().mode==='expand' && i===L.length-1)
+    return tip('Your line is equal, but simplify it fully: work out every square and product, and collect like terms.');
+  tip('Your line is equal, but it isn’t the step asked for.');
+}
+
+function accept(raw, idx){
+  const pts = S.revealed ? 0 : 10*idx.length;
+  if(pts){ S.score+=pts; S.right+=idx.length; floatScore('+'+pts,true); setFeedback(`Correct! +${pts}`,'ok'); }
+  else setFeedback('That’s it. Keep going.','ok');
+  S.rows.push({raw, steps:idx, revealed:S.revealed}); S.fresh=true;
+  S.step=idx[idx.length-1]+1; S.tries=0; S.stuck=0; S.revealed=false; S.input=''; hideHint();
+  renderScore();
+  if(S.step>=S.q.L.length){ S.done=true; renderSheet(); finishQuestion(); }
+  else { idx.length>1 ? sound.double() : sound.correct(); renderSheet(); }
+}
+function hintHTML(){
+  const ln=S.q.L[S.step];
+  let h=`<b>Hint: ${ln[1]}</b>${mathify(ln[2])}`;
+  if(S.tries+S.stuck>=3){
+    S.revealed=true;
+    h+=`<span class="reveal">= ${renderMath(altsOf(ln)[0])}</span>Type this line to move on.`;
+  }
+  return h;
+}
+function lineWrong(){
+  S.score-=10; S.wrong++; S.mistakes++; S.tries++;
+  floatScore('−10',false); renderScore(); sound.wrong();
+  const scr=$('#screen'); scr.classList.remove('shake'); void scr.offsetWidth; scr.classList.add('shake');
+  setFeedback('Not quite. That line isn’t equal to the expression above. −10','bad');
+  showHint(hintHTML());
+  S.input=''; renderSheet();
+}
+function tip(msg){
+  S.stuck++; sound.tip();
+  setFeedback(msg,'note');
+  showHint(hintHTML());
+  S.input=''; renderSheet();
+}
+
+function finishQuestion(){
+  S.answered++;
+  const last = S.t===TYPES.length-1;
+  let html;
+  if(S.mistakes===0){
+    S.cleared.push(S.t);
+    if(!last) sound.cleared();
+    html=`<div class="result clean"><h3>Type cleared!</h3><p>Every line right first time. ${last?'That was the last type.':'Next up: '+TYPES[S.t+1].name.toLowerCase()+' ('+(TYPES[S.t+1].mode==='expand'?'expanding':'factorizing')+').'}</p>
+      <button class="btn" id="nextBtn" type="button">${last?'Collect your trophy':'Go to the next type'}</button></div>`;
+  } else {
+    sound.retry();
+    html=`<div class="result again"><h3>${S.mistakes} mistake${S.mistakes>1?'s':''} on this question</h3>
+      <p>Answer one more question of the same type. Finish it with no mistakes to clear this type.</p>
+      <button class="btn" id="nextBtn" type="button">Try one more</button></div>`;
+  }
+  $('#padArea').hidden=true; const ra=$('#resultArea'); ra.innerHTML=html; ra.hidden=false;
+  renderProgress();
+  $('#nextBtn').addEventListener('click',()=>{
+    if(S.mistakes===0){ if(last) return showWin(); S.t++; loadQuestion(false); }
+    else loadQuestion(true);
+    window.scrollTo({top:0});
+  });
+  $('#nextBtn').focus();
+}
+
+function showWin(){
+  show('winView'); renderProgress(); sound.trophy();
+  $('#stats').innerHTML = `
+    <div class="stat"><b>${showNum(S.score)}</b><span>Final score</span></div>
+    <div class="stat"><b>${S.right}</b><span>Correct lines</span></div>
+    <div class="stat"><b>${S.wrong}</b><span>Wrong lines</span></div>
+    <div class="stat"><b>${S.answered}</b><span>Questions answered</span></div>`;
+  const c=$('#confetti'); c.innerHTML='';
+  const cols=['var(--gold)','var(--sub)','var(--sub2)','var(--hi)','var(--ink)'];
+  for(let i=0;i<70;i++){
+    const e=document.createElement('i');
+    e.style.left=Math.random()*100+'vw'; e.style.background=cols[i%cols.length];
+    e.style.animationDuration=(2.2+Math.random()*2.2)+'s'; e.style.animationDelay=(Math.random()*.8)+'s';
+    c.appendChild(e);
+  }
+  setTimeout(()=>c.innerHTML='',5500);
+}
+
+function renderHero(){
+  const lines=["5(9x^2-16y^2)","5((3x)^2-(4y)^2)","5(3x+4y)(3x-4y)"];
+  $('#hero').innerHTML = `<div class="hero-work">
+    <span></span><span></span><span>${renderMath("45x^2-80y^2")}</span>
+    ${lines.map(l=>`<span></span><span class="eqs">=</span><span>${renderMath(l)}</span>`).join('')}</div>`;
+}
+
+/* ---------- Wiring ---------- */
+document.addEventListener('click',e=>{ const k=e.target.closest('.key'); if(k) press(k.dataset.k); });
+document.addEventListener('keydown',e=>{
+  if($('#playView').hidden || !S || S.done) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='Enter' && e.target.closest && e.target.closest('button') && !e.target.classList.contains('key')) return;
+  let k=null;
+  if(/^[0-9]$/.test(e.key)) k=e.key;
+  else if('+*/()^'.includes(e.key)) k=e.key;
+  else if(e.key==='-'||e.key==='−') k='-';
+  else if(e.key==='Backspace') k='back';
+  else if(e.key==='Escape') k='clear';
+  else if(e.key==='Enter') k='enter';
+  else if(/^[a-z]$/i.test(e.key) && S.vars.includes(e.key.toLowerCase())) k=e.key.toLowerCase();
+  if(!k) return;
+  e.preventDefault();
+  const btn=document.querySelector(`.key[data-k="${CSS.escape(k)}"]`);
+  if(btn){ btn.classList.add('pressed'); setTimeout(()=>btn.classList.remove('pressed'),90); }
+  press(k);
+});
+$('#startBtn').addEventListener('click',startGame);
+$('#againBtn').addEventListener('click',startGame);
+$('#muteBtn').addEventListener('click',()=>{
+  SFX.on=!SFX.on; try{ localStorage.setItem('factorit-sound', SFX.on?'on':'off'); }catch(e){}
+  renderMute(); if(SFX.on) sound.correct();
+});
+renderMute(); renderHero(); renderProgress(); renderScore();
+</script>
+</body>
+</html>
+
+</body></html>
